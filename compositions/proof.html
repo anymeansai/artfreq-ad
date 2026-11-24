@@ -1,0 +1,49 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    #proof-line {
+      position: absolute;
+      left: 120px;
+      top: 300px;
+      width: 840px;
+      font-family: "Inter", sans-serif;
+      font-weight: 650;
+      font-size: 120px;
+      line-height: 1.04;
+      letter-spacing: -0.045em;
+      color: #f4f5f8;
+    }
+    #proof-line span {
+      display: inline-block;
+      white-space: nowrap;
+    }
+    #proof-w3 {
+      display: block;
+    }
+  </style>
+  <div id="root" data-composition-id="proof" data-width="1080" data-height="1920">
+    <!-- One line, said in three cuts: each part arrives with its shot (3 s, 5.5 s, 8 s of the ad). -->
+    <div id="proof-line" class="clip" data-start="0" data-duration="7" data-track-index="0">
+      <span id="proof-w1">Type it.</span>
+      <span id="proof-w2">Draw it.</span>
+      <span id="proof-w3">Hear it.</span>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    const arrive = (id, at) =>
+      tl.fromTo(
+        id,
+        { opacity: 0, scale: 1.12, filter: "blur(8px)", transformOrigin: "0% 60%" },
+        { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" },
+        at,
+      );
+    tl.fromTo("#proof-w1", { scale: 1.07, transformOrigin: "0% 60%" }, { scale: 1, duration: 0.3, ease: "expo.out" }, 0);
+    arrive("#proof-w2", 2.5);
+    arrive("#proof-w3", 5.0);
+    window.__timelines["proof"] = tl;
+  </script>
+</template>

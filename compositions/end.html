@@ -1,0 +1,74 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    /* "AnyMeans Audio" as the site's header sets it: the lockup, then the word Audio in Inter 600. */
+    #end-brand {
+      position: absolute;
+      left: 100px;
+      top: 470px;
+      height: 124px;
+      display: flex;
+      align-items: center;
+    }
+    #end-brand img {
+      display: block;
+      height: 124px;
+      width: auto;
+    }
+    #end-brand span {
+      margin-left: -4px;
+      font-family: "Inter", sans-serif;
+      font-weight: 600;
+      font-size: 66px;
+      line-height: 1;
+      letter-spacing: -0.012em;
+      color: #e8ebf2;
+      white-space: nowrap;
+    }
+    #end-line {
+      position: absolute;
+      left: 120px;
+      top: 668px;
+      width: 840px;
+      font-family: "Inter", sans-serif;
+      font-weight: 650;
+      font-size: 124px;
+      line-height: 1;
+      letter-spacing: -0.045em;
+      color: #f4f5f8;
+      white-space: nowrap;
+    }
+    #end-url {
+      position: absolute;
+      left: 120px;
+      top: 850px;
+      width: 840px;
+      font-family: "DM Mono", monospace;
+      font-weight: 500;
+      font-size: 72px;
+      line-height: 1;
+      letter-spacing: 0.01em;
+      color: #f9a13a; /* the one accent: the website */
+      white-space: nowrap;
+    }
+  </style>
+  <div id="root" data-composition-id="end" data-width="1080" data-height="1920">
+    <div id="end-brand" class="clip" data-start="0" data-duration="3" data-track-index="0">
+      <img id="end-lockup" src="assets/img/anymeans-lockup.svg" alt="AnyMeans" />
+      <span>Audio</span>
+    </div>
+    <div id="end-line" class="clip" data-start="0" data-duration="3" data-track-index="1">Draw in sound.</div>
+    <div id="end-url" class="clip" data-start="0" data-duration="3" data-track-index="2">anymeansaudio.com</div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    // The lockup is there on the cut, the line and the website within a quarter of a second;
+    // then all three hold still to be read.
+    tl.fromTo("#end-line", { filter: "blur(10px)" }, { filter: "blur(0px)", duration: 0.2, ease: "power3.out" }, 0);
+    tl.fromTo("#end-url", { opacity: 0 }, { opacity: 1, duration: 0.15, ease: "none" }, 0.1);
+    window.__timelines["end"] = tl;
+  </script>
+</template>

@@ -1,0 +1,82 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    #depth-line {
+      position: absolute;
+      left: 120px;
+      top: 300px;
+      width: 840px;
+      font-family: "Inter", sans-serif;
+      font-weight: 650;
+      font-size: 112px;
+      line-height: 1;
+      letter-spacing: -0.045em;
+      color: #f4f5f8;
+    }
+    #depth-line span {
+      display: block;
+      white-space: nowrap;
+    }
+    /* What ArtFreq FX is doing to the loop right now, in the window's own words for its modes. */
+    #depth-steps {
+      position: absolute;
+      left: 120px;
+      top: 662px;
+      width: 840px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      font-family: "DM Mono", monospace;
+      font-weight: 500;
+      font-size: 30px;
+      line-height: 40px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: #9097a6;
+      white-space: nowrap;
+    }
+    #depth-steps i {
+      display: block;
+      width: 34px;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.22);
+    }
+  </style>
+  <div id="root" data-composition-id="depth" data-width="1080" data-height="1920">
+    <div id="depth-line" class="clip" data-start="0" data-duration="10" data-track-index="0">
+      <span id="depth-l1">Or carve it</span>
+      <span id="depth-l2">into audio you</span>
+      <span id="depth-l3">already have.</span>
+    </div>
+    <div id="depth-steps" class="clip" data-start="0" data-duration="10" data-track-index="1">
+      <span id="depth-s1">Dry</span><i></i><span id="depth-s2">Carve</span><i></i><span id="depth-s3">Carve + Draw</span>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    // The first line is there on the cut; the other two follow a few pictures apart.
+    tl.fromTo("#depth-l1", { filter: "blur(10px)" }, { filter: "blur(0px)", duration: 0.2, ease: "power3.out" }, 0);
+    ["#depth-l2", "#depth-l3"].forEach((id, i) =>
+      tl.fromTo(
+        id,
+        { opacity: 0, filter: "blur(10px)" },
+        { opacity: 1, filter: "blur(0px)", duration: 0.2, ease: "power3.out" },
+        0.07 * (i + 1),
+      ),
+    );
+    // The step that is true now is white; the others wait in grey.
+    //   0 s    the loop as it is (the drawing's pass starts with a rest)
+    //   1.2 s  the words begin: Carve
+    //   4 s    Mode goes to Carve + Draw (the window's own control moves at this picture)
+    const on = "#f4f5f8", off = "#9097a6";
+    tl.fromTo("#depth-s1", { color: on }, { color: off, duration: 0.12, ease: "none" }, 1.2);
+    tl.fromTo("#depth-s2", { color: off }, { color: on, duration: 0.12, ease: "none" }, 1.2);
+    tl.to("#depth-s2", { color: off, duration: 0.12, ease: "none" }, 4);
+    tl.fromTo("#depth-s3", { color: off }, { color: on, duration: 0.12, ease: "none" }, 4);
+    window.__timelines["depth"] = tl;
+  </script>
+</template>

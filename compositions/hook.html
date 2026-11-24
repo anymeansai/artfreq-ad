@@ -1,0 +1,37 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    #hook-line {
+      position: absolute;
+      left: 120px;
+      top: 300px;
+      width: 840px;
+      font-family: "Inter", sans-serif;
+      font-weight: 650;
+      font-size: 148px;
+      line-height: 1;
+      letter-spacing: -0.045em;
+      color: #f4f5f8;
+    }
+    #hook-line span {
+      display: block;
+      white-space: nowrap;
+    }
+  </style>
+  <div id="root" data-composition-id="hook" data-width="1080" data-height="1920">
+    <!-- On screen from the first picture, already readable: it lands, it does not fade in. -->
+    <div id="hook-line" class="clip" data-start="0" data-duration="3" data-track-index="0">
+      <span id="hook-l1">This sound</span>
+      <span id="hook-l2">is a picture.</span>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#hook-l1", { scale: 1.07, transformOrigin: "0% 100%" }, { scale: 1, duration: 0.35, ease: "expo.out" }, 0);
+    tl.fromTo("#hook-l2", { scale: 1.07, transformOrigin: "0% 0%" }, { scale: 1, duration: 0.35, ease: "expo.out" }, 0);
+    window.__timelines["hook"] = tl;
+  </script>
+</template>

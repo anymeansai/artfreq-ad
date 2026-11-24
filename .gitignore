@@ -1,1 +1,5 @@
 node_modules/
+.hyperframes/
+tools/adreel/build/
+__pycache__/
+*.pyc
