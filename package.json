@@ -1,0 +1,23 @@
+{
+  "name": "artfreq-ad",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/anymeansai/artfreq-ad.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/anymeansai/artfreq-ad/issues"
+  },
+  "homepage": "https://github.com/anymeansai/artfreq-ad#readme",
+  "dependencies": {
+    "hyperframes": "^0.9.91"
+  }
+}
