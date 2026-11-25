@@ -4,51 +4,64 @@
       position: absolute;
       inset: 0;
     }
-    /* "AnyMeans Audio" as the site's header sets it: the lockup, then the word Audio in Inter 600. */
+    /* "AnyMeans Audio" as the site's header sets it: the lockup, then the word Audio in Inter 600.
+       Here it signs the card; the product's name is the largest thing on it. */
     #end-brand {
       position: absolute;
-      left: 100px;
-      top: 330px;
-      height: 124px;
+      left: 106px;
+      top: 300px;
+      height: 84px;
       display: flex;
       align-items: center;
     }
     #end-brand img {
       display: block;
-      height: 124px;
+      height: 84px;
       width: auto;
     }
     #end-brand span {
-      margin-left: -4px;
+      margin-left: -3px;
       font-family: "Inter", sans-serif;
       font-weight: 600;
-      font-size: 66px;
+      font-size: 45px;
       line-height: 1;
       letter-spacing: -0.012em;
       color: #e8ebf2;
       white-space: nowrap;
     }
-    #end-line {
+    #end-title {
       position: absolute;
       left: 120px;
-      top: 520px;
+      top: 424px;
       width: max-content;
       font-family: "Inter", sans-serif;
-      font-weight: 650;
-      font-size: 124px;
-      line-height: 1;
-      letter-spacing: -0.045em;
       color: #f4f5f8;
+    }
+    #end-name {
+      display: block;
+      font-weight: 650;
+      font-size: 156px;
+      line-height: 1;
+      letter-spacing: -0.05em;
+      white-space: nowrap;
+    }
+    #end-line {
+      display: block;
+      margin-top: 18px;
+      font-weight: 600;
+      font-size: 92px;
+      line-height: 1;
+      letter-spacing: -0.04em;
       white-space: nowrap;
     }
     #end-url {
       position: absolute;
       left: 120px;
-      top: 700px;
+      top: 738px;
       width: max-content;
       font-family: "DM Mono", monospace;
       font-weight: 500;
-      font-size: 72px;
+      font-size: 64px;
       line-height: 1;
       letter-spacing: 0.01em;
       color: #f9a13a; /* the one accent: the website */
@@ -60,13 +73,16 @@
       <img id="end-lockup" src="assets/img/anymeans-lockup.svg" alt="AnyMeans" />
       <span>Audio</span>
     </div>
-    <div id="end-line" class="clip" data-start="0" data-duration="3" data-track-index="1">Draw in sound.</div>
+    <div id="end-title" class="clip" data-start="0" data-duration="3" data-track-index="1">
+      <span id="end-name">ArtFreq</span>
+      <span id="end-line">Draw in sound.</span>
+    </div>
     <div id="end-url" class="clip" data-start="0" data-duration="3" data-track-index="2">anymeansaudio.com</div>
   </div>
   <script>
     const tl = gsap.timeline({ paused: true });
-    // All three are on the first picture of the card and hold still to be read; the line lands.
-    tl.fromTo("#end-line", { scale: 1.05, transformOrigin: "0% 60%" }, { scale: 1, duration: 0.3, ease: "expo.out" }, 0);
+    // Everything is on the first picture of the card and holds still to be read; the name lands.
+    tl.fromTo("#end-name", { scale: 1.05, transformOrigin: "0% 60%" }, { scale: 1, duration: 0.3, ease: "expo.out" }, 0);
     window.__timelines["end"] = tl;
   </script>
 </template>

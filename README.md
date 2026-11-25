@@ -14,7 +14,7 @@ output: nothing of the GUI or of a spectrogram is drawn, mocked up or generated.
 | 3 - 10 s | Proof | "Type it. Draw it. Hear it.": ART / FREQ typed, a star brushed, a picture dropped and dragged out, each cut to its live view | each drawing, played by ArtFreq, over a drum loop |
 | 10 - 20 s | Depth | "Or carve it into audio you already have.": ArtFreq FX on a loop. Each 4 s pass: the loop as it is, then YOUR / NAME: Carve + Draw, then Carve, then Carve + Draw | the loop through ArtFreq FX |
 | 20 - 25 s | Product | "ArtFreq", "VST3 · Mac + Windows" (and a small "ArtFreq FX comes with ArtFreq Pro"); no prices | the loop carries on |
-| 25 - 28 s | End card | AnyMeans Audio, "Draw in sound.", anymeansaudio.com | the loop ends its phrase, then the hook's words once more |
+| 25 - 28 s | End card | AnyMeans Audio, "ArtFreq", "Draw in sound.", anymeansaudio.com | the loop ends its phrase, then the hook's words once more |
 
 Two small labels are not in the brief's copy: the row "Dry / Carve + Draw / Carve" in the depth
 section (the one that is true of the sound at that moment is lit) and "ArtFreq FX comes with
