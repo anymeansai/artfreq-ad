@@ -12,22 +12,17 @@
       font-family: "Inter", sans-serif;
       color: #f4f5f8;
     }
-    #offer-price {
+    #offer-name {
       display: block;
       font-weight: 650;
-      font-size: 86px;
+      font-size: 140px;
       line-height: 1;
-      letter-spacing: -0.045em;
-      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.05em;
       white-space: nowrap;
-    }
-    #offer-price b {
-      font-weight: 650;
-      color: #f9a13a; /* the one accent: the prices */
     }
     #offer-formats {
       display: block;
-      margin-top: 28px;
+      margin-top: 24px;
       font-weight: 550;
       font-size: 58px;
       line-height: 1;
@@ -37,7 +32,7 @@
     }
     #offer-note {
       display: block;
-      margin-top: 40px;
+      margin-top: 32px;
       font-family: "DM Mono", monospace;
       font-weight: 500;
       font-size: 34px;
@@ -52,7 +47,7 @@
     #offer-window {
       position: absolute;
       left: 40px;
-      top: 620px;
+      top: 644px;
       width: 760px;
       height: 488px;
       border-radius: 22px;
@@ -67,10 +62,11 @@
     }
   </style>
   <div id="root" data-composition-id="offer" data-width="1080" data-height="1920">
+    <!-- No prices in the ad: the name, what it runs on, and what the Pro edition adds. -->
     <div id="offer-text" class="clip" data-start="0" data-duration="5" data-track-index="0">
-      <span id="offer-price">ArtFreq <b>$29</b> · Pro <b>$39</b></span>
+      <span id="offer-name">ArtFreq</span>
       <span id="offer-formats">VST3 · Mac + Windows</span>
-      <span id="offer-note">ArtFreq FX comes with Pro</span>
+      <span id="offer-note">ArtFreq FX comes with ArtFreq Pro</span>
     </div>
     <div id="offer-window" class="clip" data-start="0" data-duration="5" data-track-index="1" data-layout-allow-overflow>
       <img id="offer-window-img" src="assets/img/artfreq-window.png" alt="" />
@@ -78,8 +74,8 @@
   </div>
   <script>
     const tl = gsap.timeline({ paused: true });
-    // The price is sharp on the cut; the rest is there within a quarter of a second, then all holds.
-    tl.fromTo("#offer-price", { scale: 1.06, transformOrigin: "0% 60%" }, { scale: 1, duration: 0.3, ease: "expo.out" }, 0);
+    // The name is sharp on the cut; the rest is there within a quarter of a second, then all holds.
+    tl.fromTo("#offer-name", { scale: 1.06, transformOrigin: "0% 60%" }, { scale: 1, duration: 0.3, ease: "expo.out" }, 0);
     tl.fromTo("#offer-formats", { opacity: 0 }, { opacity: 1, duration: 0.12, ease: "none" }, 0.13);
     tl.fromTo("#offer-note", { opacity: 0 }, { opacity: 1, duration: 0.12, ease: "none" }, 0.26);
     tl.fromTo(
