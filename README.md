@@ -10,11 +10,15 @@ output: nothing of the GUI or of a spectrogram is drawn, mocked up or generated.
 
 | Time | Section | On screen | Sound |
 | --- | --- | --- | --- |
-| 0 - 3 s | Hook | "This sound is a picture." over ArtFreq's live view writing HEAR / THIS, then the window | those words, played by ArtFreq |
-| 3 - 10 s | Proof | "Type it. Draw it. Hear it.": a word typed, a star brushed, a picture dropped, each cut to its live view | each drawing, played by ArtFreq, over a drum loop |
-| 10 - 20 s | Depth | "Or carve it into audio you already have.": ArtFreq FX on a loop: as it is, then Carve, then Carve + Draw | the loop through ArtFreq FX |
-| 20 - 25 s | Offer | "ArtFreq $29 · Pro $39", "VST3 · Mac + Windows" | the loop carries on |
-| 25 - 28 s | End card | AnyMeans Audio, "Draw in sound.", anymeansaudio.com | the hook's words once more |
+| 0 - 3 s | Hook | "This sound is a picture." over ArtFreq's live view: HEAR / THIS, whole on the first picture and written again as it sounds; then the window | those words, played by ArtFreq |
+| 3 - 10 s | Proof | "Type it. Draw it. Hear it.": ART / FREQ typed, a star brushed, a picture dropped and dragged out, each cut to its live view | each drawing, played by ArtFreq, over a drum loop |
+| 10 - 20 s | Depth | "Or carve it into audio you already have.": ArtFreq FX on a loop. Each 4 s pass: the loop as it is, then YOUR / NAME: Carve + Draw, then Carve, then Carve + Draw | the loop through ArtFreq FX |
+| 20 - 25 s | Offer | "ArtFreq $29 · Pro $39", "VST3 · Mac + Windows" (and a small "ArtFreq FX comes with Pro") | the loop carries on |
+| 25 - 28 s | End card | AnyMeans Audio, "Draw in sound.", anymeansaudio.com | the loop ends its phrase, then the hook's words once more |
+
+Two small labels are not in the brief's copy: the row "Dry / Carve + Draw / Carve" in the depth
+section (the one that is true of the sound at that moment is lit) and "ArtFreq FX comes with Pro"
+in the offer.
 
 ## How it is made
 
@@ -43,17 +47,26 @@ per picture) and after each picture's sound takes a snapshot of the window. So a
 `i` always belongs to its samples `[1600 i, 1600 (i + 1))`, and what the live view shows is what
 was just heard.
 
-- Drawings are made the way a user makes them: typing into the text box, dragging the brush over
-  the canvas, dropping a PNG on the canvas.
-- Every take runs with Repeat on. A live shot in the ad starts where the second pass starts: the
-  first pass's picture is whole in the live view, and the sound of the same drawing starts on
-  the cut.
-- ArtFreq FX's "dry" stretches are the loop passing through the plug-in untouched: its output
-  there equals its input, sample for sample (delayed by the plug-in's latency).
+- Drawings are made through the plug-in's own interface: text typed into the text box, the brush
+  dragged over the canvas, a PNG dropped on the canvas and dragged out by its corner handles.
+  The input is scripted (keys and mouse events sent to the window), so it is faster and
+  steadier than a hand; it is not a screen recording of someone using it.
+- Every take runs with Repeat on. A live shot in the ad starts where a later pass starts: the
+  pass before is whole in the live view, and the sound of the same drawing starts on the cut.
+  So the first picture of such a shot was drawn by the pass just before the one being heard
+  (the same drawing, the same sound).
+- ArtFreq FX's "dry" stretches are the rest at the start of each pass of the drawing: the loop
+  passes through the plug-in untouched there, its output equal to its input sample for sample
+  (delayed by the plug-in's latency). Mode is changed on the first picture of a pass, as a
+  host's automation would change it.
 - The loop ArtFreq FX works on is the plug-in repository's own test song (`makeSong` in
   `tools/DemoReel.cpp`, a synthetic 120 BPM loop), not a record.
-- Nothing of the plug-in is copied into this repository. `AdReel.cpp` includes `DemoReel.cpp`
-  where it lies in the checkout, for the test song, the sunset picture and its helpers.
+- The plug-in's sources stay in its own checkout. `AdReel.cpp` includes `DemoReel.cpp` where
+  it lies there, for the test song, the sunset picture and its helpers; the way a take is
+  filmed follows that file, and a few helper lines are adapted from it and from
+  `tools/Snapshot.cpp`.
+- The still of ArtFreq's window in the offer shows the drawing a new instance opens with (the
+  word "ArtFreq"), drawn with the view settings below.
 
 Settings that differ from a fresh instance, all of them the plug-in's own controls:
 
@@ -87,7 +100,7 @@ python3 tools/mix_audio.py <takes>   # assets/audio/ad-mix.wav  (needs numpy)
   retimed, recoloured or drawn on.
 - The sound of the plug-in is only cut (on the same pictures as the shots), levelled and given
   a few milliseconds of fade at each cut. No EQ, reverb, pitch or time change.
-- The drum loop under the proof is made in `mix_audio.py` from sines and noise.
+- The drum loop under the proof is made in `mix_audio.py` from sines and noise (no samples).
 - The mix is levelled to -14 LUFS with peaks under -1 dBTP.
 
 ### 3. The film
@@ -98,6 +111,9 @@ npx hyperframes lint
 npx hyperframes check --no-cache
 npm run render                       # ad-artfreq-hookA.mp4
 ```
+
+The render carries HyperFrames' container tags; the file in this repository has them removed
+without re-encoding: `ffmpeg -i in.mp4 -map 0 -map_metadata -1 -c copy -movflags +faststart out.mp4`.
 
 `index.html` holds the shots and the sound; `compositions/` holds the words of each section.
 Fonts (Inter, DM Mono) and the AnyMeans lockup are the website's own files, in `assets/`.

@@ -40,8 +40,8 @@ def framing(shot, meta):
     if kind == "tall":
         x, y, w, h = rect("live-plot")
         cw = w * shot["seconds"] / meta["liveSeconds"]          # the newest `seconds` of the view
-        ch = min(h, cw * edit.TALL_H / edit.OUT_W)              # from the top of the plot (20 kHz) down
-        return (x + w - cw, y, cw, ch), (edit.OUT_W, edit.TALL_H)
+        ow = shot.get("width", edit.OUT_W)
+        return (x + w - cw, y, cw, h), (ow, even(h * ow / cw))
     if kind == "card":
         cw = edit.CARD_W / 1.25 * scale                          # 832 points of the window
         return (0, 0, cw, meta["height"]), (edit.CARD_W, edit.CARD_H)
@@ -50,7 +50,7 @@ def framing(shot, meta):
     if kind == "fx-zoom":
         x, y, w, h = rect("live-plot")
         cw = w * shot["seconds"] / meta["liveSeconds"]
-        return (x + w - cw, y, cw, h), (edit.OUT_W, even(h * edit.OUT_W / cw))
+        return (x + w - cw, y, cw, h), (edit.ZOOM_W, even(h * edit.ZOOM_W / cw))
     if kind == "window":
         return (0, 0, meta["width"], meta["height"]), (shot["width"], even(meta["height"] * shot["width"] / meta["width"]))
     raise ValueError(kind)

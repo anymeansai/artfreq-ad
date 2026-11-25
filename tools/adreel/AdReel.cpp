@@ -22,9 +22,13 @@
 // point), <name>.wav (32-bit float stereo) and <name>.json (sizes, the pictures at which things
 // happen, and where the parts of the window are, in pixels of the picture).
 //
-// The plug-in's sources are compiled from a checkout of the plug-in (see CMakeLists.txt); none
-// of its code is copied here. tools/DemoReel.cpp is included as it lies there, for its test song,
-// its picture and its helpers. ArtFreq is AGPL-3.0, and so is this file.
+// The plug-in's sources are compiled from a checkout of the plug-in (see CMakeLists.txt), and
+// tools/DemoReel.cpp is included as it lies there, for its test song, its picture and its
+// helpers. The way a take is filmed (the block loop, the live view's timer, the snapshot) follows
+// DemoReel.cpp, and a few helper lines here are adapted from it and from tools/Snapshot.cpp.
+// ArtFreq is AGPL-3.0, and so is this file.
+//
+// SPDX-License-Identifier: AGPL-3.0-or-later
 //
 // Run it under a virtual display large enough for the window (the live view runs only while
 // its window is on screen):
@@ -501,12 +505,12 @@ void filmTyping (const juce::File& outputDir)
         field->selectAll();                             // as "Add text" leaves it: typing replaces the word
         take.mark ("typing");
 
-        // Three pictures a letter (ten letters a second: fast, as an ad is), one for the new line.
-        for (const auto letter : juce::String ("YOUR\nNAME"))
+        // Four pictures a letter (scripted keys, faster than hands), two for the new line.
+        for (const auto letter : juce::String ("ART\nFREQ"))
         {
             field->insertTextAtCaret (juce::String::charToString (letter));
             pump (30);                                  // a text box reports its change a moment later
-            take.film (letter == '\n' ? 1 : 3);
+            take.film (letter == '\n' ? 2 : 4);
         }
     }
 
@@ -634,20 +638,37 @@ void filmPicture (const juce::File& outputDir)
     take.canvas->filesDropped (files, x, y);    // lands under the mouse, selected
     pump (30);
 
-    // ... and dragged out to its size (the drop makes it 40 % of the length, in one band).
-    if (const auto selected = take.editor->getSelectedObject(); ! selected.isNull())
-        take.processor->editDocument ([selected] (ArtDocument& d)
+    take.film (2);                              // as it lands: 40 % of the length, in the band under the mouse
+
+    // ... then dragged out to its size by two of its corner handles, as a user does it.
+    const auto selected = take.editor->getSelectedObject();
+    check (! selected.isNull(), "the dropped picture is selected");
+    const auto scale = take.processor->getScale();
+    const auto place = [&] (double time, double hz)
+    {
+        return juce::Point<float> (area.getX() + static_cast<float> (time) * area.getWidth(),
+                                   area.getY() + static_cast<float> (1.0 - scale.toNorm (hz)) * area.getHeight());
+    };
+    const auto dragHandle = [&] (bool right, bool top, juce::Point<float> to, int pictures)
+    {
+        const auto box = take.canvas->getObjectBounds (selected).reduced (ui::CanvasView::handleReach);
+        const juce::Point<float> from (right ? box.getRight() : box.getX(), top ? box.getY() : box.getBottom());
+        const auto held = juce::ModifierKeys (juce::ModifierKeys::leftButtonModifier);
+        take.canvas->mouseDown (mouseEventAt (*take.canvas, from, from, held));
+
+        for (int i = 1; i <= pictures; ++i)
         {
-            if (auto* o = d.find (selected))
-            {
-                o->startTime = 0.04f;
-                o->endTime = 0.96f;
-                o->lowHz = 400.0f;
-                o->highHz = readHighHz;
-            }
-        });
-    else
-        check (false, "the dropped picture is selected");
+            take.canvas->mouseDrag (mouseEventAt (*take.canvas, from + (to - from) * (static_cast<float> (i) / pictures), from, held, true));
+            take.film();
+        }
+
+        take.canvas->mouseUp (mouseEventAt (*take.canvas, to, from, {}, true));
+    };
+
+    take.mark ("resize");
+    dragHandle (true, true, place (0.96, readHighHz), 4);     // top right corner: up and out
+    dragHandle (false, false, place (0.04, 400.0), 4);        // bottom left corner: down and out
+    take.mark ("resized");
 
     take.processor->rebuildPlanIfNeeded();
     pump (40);
@@ -666,7 +687,8 @@ void filmPicture (const juce::File& outputDir)
 }
 
 //==============================================================================
-/** The product still: ArtFreq as it opens (its own name on the canvas), nothing playing. */
+/** The product still: ArtFreq with the drawing a new instance opens with (its own name), drawn
+    with the view settings of the other takes. Nothing playing. */
 void filmStill (const juce::File& outputDir)
 {
     Take take ("still", false, [] (ArtFreqProcessor& p)
@@ -683,14 +705,18 @@ void filmStill (const juce::File& outputDir)
 //==============================================================================
 /** "Carve it into audio you already have": ArtFreq FX's live view on a loop.
 
-    The loop runs through the plug-in for two passes of the drawing (2 bars each) with Depth at
-    0 dB, which carves nothing: the live view fills with the loop as it is. Then Depth goes to
-    -80 dB (mark "carve"): each pass starts with a rest, the loop as it is, then the words. The
-    first of those passes is in Carve; from the next (mark "carve-draw") Mode is Carve + Draw. */
+    The loop runs through the plug-in for two passes of the drawing (2 bars each) in Carve with
+    Depth at 0 dB, which carves nothing: the live view fills with the loop as it is. Then Depth
+    goes to -80 dB, and each pass starts with a rest (the loop as it is, sample for sample) and
+    then the words:
+      mark "a": Carve + Draw (the words carved out and played into the hole)
+      mark "b": Carve (the words carved out)
+      mark "c": Carve + Draw again, to the end.
+    Mode is changed as a host's automation changes it, on the first picture of a pass. */
 void filmEffect (const juce::File& outputDir)
 {
     ArtDocument drawing;
-    drawing.objects.push_back (makeWord ("YOUR\nNAME", 400.0f, readHighHz, 0.30f, 0.96f));
+    drawing.objects.push_back (makeWord ("YOUR\nNAME", 400.0f, readHighHz, 0.30f, 0.86f));
 
     Take take ("fx", true, [] (ArtFreqProcessor& p)
     {
@@ -703,8 +729,8 @@ void filmEffect (const juce::File& outputDir)
     }, outputDir, drawing);
 
     constexpr int passFrames = 4 * framesPerSecond;
-    constexpr int dryPasses = 2, carvedFrames = 17 * framesPerSecond;
-    take.input = makeSong ((dryPasses * passFrames + carvedFrames) / static_cast<double> (framesPerSecond) + 1.0);
+    constexpr int dryPasses = 2, wetFrames = 17 * framesPerSecond;
+    take.input = makeSong ((dryPasses * passFrames + wetFrames) / static_cast<double> (framesPerSecond) + 1.0);
     take.showLive();
 
     // ArtFreq FX's output is its latency behind its input. The DAW starts that much before a
@@ -716,21 +742,24 @@ void filmEffect (const juce::File& outputDir)
     take.mark ("sound");
     take.film (dryPasses * passFrames);
 
-    const auto change = [&take] (const char* id, float value, const char* mark)
+    const auto setMode = [&take] (EffectMode mode, const char* mark)
     {
-        setParameter (*take.processor, id, value);
+        setParameter (*take.processor, params::id::mode, static_cast<float> (static_cast<int> (mode)));
+        setParameter (*take.processor, params::id::depth, -80.0f);
         take.processor->rebuildPlanIfNeeded();
         pump (40);
         take.mark (mark);
         take.noteRects (juce::String (mark) + "/");
     };
 
-    for (int frame = 0; frame < carvedFrames; ++frame)
+    for (int frame = 0; frame < wetFrames; ++frame)
     {
         if (frame == 0)
-            change (params::id::depth, -80.0f, "carve");
+            setMode (EffectMode::carveDraw, "a");
         else if (frame == passFrames)
-            change (params::id::mode, static_cast<float> (static_cast<int> (EffectMode::carveDraw)), "carve-draw");
+            setMode (EffectMode::carve, "b");
+        else if (frame == 2 * passFrames)
+            setMode (EffectMode::carveDraw, "c");
 
         take.film();
     }

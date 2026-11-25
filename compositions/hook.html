@@ -7,12 +7,12 @@
     #hook-line {
       position: absolute;
       left: 120px;
-      top: 300px;
+      top: 304px;
       width: 840px;
       font-family: "Inter", sans-serif;
       font-weight: 650;
       font-size: 148px;
-      line-height: 1;
+      line-height: 0.94;
       letter-spacing: -0.045em;
       color: #f4f5f8;
     }
@@ -30,8 +30,7 @@
   </div>
   <script>
     const tl = gsap.timeline({ paused: true });
-    tl.fromTo("#hook-l1", { scale: 1.07, transformOrigin: "0% 100%" }, { scale: 1, duration: 0.35, ease: "expo.out" }, 0);
-    tl.fromTo("#hook-l2", { scale: 1.07, transformOrigin: "0% 0%" }, { scale: 1, duration: 0.35, ease: "expo.out" }, 0);
+    tl.fromTo("#hook-line", { scale: 1.05, transformOrigin: "0% 50%" }, { scale: 1, duration: 0.35, ease: "expo.out" }, 0);
     window.__timelines["hook"] = tl;
   </script>
 </template>

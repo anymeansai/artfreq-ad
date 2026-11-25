@@ -23,6 +23,10 @@
     #proof-w3 {
       display: block;
     }
+    #proof-w2,
+    #proof-w3 {
+      opacity: 0; /* each arrives with its shot */
+    }
   </style>
   <div id="root" data-composition-id="proof" data-width="1080" data-height="1920">
     <!-- One line, said in three cuts: each part arrives with its shot (3 s, 5.5 s, 8 s of the ad). -->
@@ -34,16 +38,19 @@
   </div>
   <script>
     const tl = gsap.timeline({ paused: true });
-    const arrive = (id, at) =>
+    // Each part is sharp on its cut and settles from a little large; then it holds still.
+    const land = (id, at) => {
+      tl.set(id, { opacity: 1 }, at);
       tl.fromTo(
         id,
-        { opacity: 0, scale: 1.12, filter: "blur(8px)", transformOrigin: "0% 60%" },
-        { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.2, ease: "power4.out" },
+        { scale: 1.07, transformOrigin: "0% 60%" },
+        { scale: 1, duration: 0.3, ease: "expo.out", immediateRender: false },
         at,
       );
+    };
     tl.fromTo("#proof-w1", { scale: 1.07, transformOrigin: "0% 60%" }, { scale: 1, duration: 0.3, ease: "expo.out" }, 0);
-    arrive("#proof-w2", 2.5);
-    arrive("#proof-w3", 5.0);
+    land("#proof-w2", 2.5);
+    land("#proof-w3", 5);
     window.__timelines["proof"] = tl;
   </script>
 </template>

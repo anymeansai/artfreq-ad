@@ -11,6 +11,7 @@ What is in it:
   - One drum loop under the proof (edit.DRUMS), made here from sines and noise: a kick on every
     beat, a clap on 2 and 4, hats on the off-beats. 120 BPM, bars on even seconds, so it hands
     over to the loop ArtFreq FX plays from 10 s (the plug-in repo's own test song, same tempo).
+    It is voiced to be heard on a phone: the kick has a knock and a click above its thump.
   - On the sum: a peak limiter (5 ms look-ahead) and a gain to the loudness target.
 
 Needs numpy and ffmpeg (to read the takes' float WAVs, measure loudness and write the file).
@@ -83,30 +84,32 @@ def shaped_noise(rng, n, low, high):
 
 def kick():
     t = np.arange(int(0.32 * SR)) / SR
-    hz = 47.0 + 120.0 * np.exp(-t / 0.030)                      # the pitch drops into the thump
+    hz = 55.0 + 160.0 * np.exp(-t / 0.030)                      # the pitch drops into the thump
     body = np.sin(2.0 * np.pi * np.cumsum(hz) / SR) * np.exp(-t / 0.13)
-    click = np.sin(2.0 * np.pi * 1800.0 * t) * np.exp(-t / 0.0025) * 0.35
-    out = np.tanh(1.6 * (body + click)) * np.minimum(1.0, t / 0.001)
+    knock_hz = 220.0 + 500.0 * np.exp(-t / 0.012)               # the part a phone speaker plays
+    knock = np.sin(2.0 * np.pi * np.cumsum(knock_hz) / SR) * np.exp(-t / 0.040) * 0.9
+    click = np.sin(2.0 * np.pi * 1800.0 * t) * np.exp(-t / 0.008)
+    out = np.tanh(1.6 * (body + knock + click)) * np.minimum(1.0, t / 0.001)
     out[-480:] *= np.linspace(1.0, 0.0, 480)
     return out
 
 
 def clap(rng):
-    n = int(0.28 * SR)
+    n = int(0.40 * SR)
     t = np.arange(n) / SR
     envelope = np.zeros(n)
     for start, level in ((0.0, 0.7), (0.011, 0.8), (0.023, 1.0)):   # three hands, then the tail
         later = t >= start
         envelope[later] = np.maximum(envelope[later], level * np.exp(-(t[later] - start) / 0.007))
     tail = t >= 0.023
-    envelope[tail] = np.maximum(envelope[tail], 0.55 * np.exp(-(t[tail] - 0.023) / 0.060))
-    return shaped_noise(rng, n, 900.0, 5200.0) * envelope
+    envelope[tail] = np.maximum(envelope[tail], 0.8 * np.exp(-(t[tail] - 0.023) / 0.110))
+    return shaped_noise(rng, n, 700.0, 6000.0) * envelope
 
 
 def hat(rng, decay):
-    n = int(0.12 * SR)
+    n = int(0.25 * SR)
     t = np.arange(n) / SR
-    return shaped_noise(rng, n, 7000.0, 16000.0) * np.exp(-t / decay) * np.minimum(1.0, t / 0.0005)
+    return shaped_noise(rng, n, 5000.0, 14000.0) * np.exp(-t / decay) * np.minimum(1.0, t / 0.0005)
 
 
 def drum_loop(start, end):
@@ -116,7 +119,7 @@ def drum_loop(start, end):
     out = np.zeros(total)
     beat = 60.0 / edit.BPM
     k, c = kick(), clap(rng)
-    closed, open_hat = hat(rng, 0.016), hat(rng, 0.045)
+    closed, open_hat = hat(rng, 0.030), hat(rng, 0.070)
 
     def add(sound, at, level):
         i = int(round(at * SR))
@@ -133,10 +136,10 @@ def drum_loop(start, end):
         at = b * beat
         add(k, at, db(-5.0))
         if b % 4 in (1, 3):                      # 2 and 4
-            add(c, at, db(-9.5))
-        add(open_hat, at + beat / 2, db(-17.0))  # the off-beat
+            add(c, at, db(0.0))
+        add(open_hat, at + beat / 2, db(-6.0))  # the off-beat
         for sixteenth in (0.25, 0.75):
-            add(closed, at + beat * sixteenth, db(-24.0))
+            add(closed, at + beat * sixteenth, db(-9.0))
     return out
 
 
@@ -174,7 +177,7 @@ def main():
         audio = read(takes / f"{cut['take']}.wav")
         first = (meta["marks"][cut["mark"]] + cut["offset"]) * edit.SAMPLES_PER_FRAME
         n = int(round(cut["seconds"] * SR))
-        clip = fade(audio[first:first + n]) * db(cut["gain"])
+        clip = fade(audio[first:first + n], in_ms=cut.get("fade_in_ms", 3.0)) * db(cut["gain"])
         at = int(round(cut["at"] * SR))
         n = min(len(clip), total - at)
         mix[at:at + n] += clip[:n]
