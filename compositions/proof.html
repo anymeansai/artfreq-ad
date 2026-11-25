@@ -11,7 +11,7 @@
       width: 840px;
       font-family: "Inter", sans-serif;
       font-weight: 650;
-      font-size: 120px;
+      font-size: 100px;
       line-height: 1.04;
       letter-spacing: -0.045em;
       color: #f4f5f8;
@@ -20,20 +20,24 @@
       display: inline-block;
       white-space: nowrap;
     }
-    #proof-w3 {
+    #proof-w3,
+    #proof-w4 {
       display: block;
+      width: max-content;
     }
     #proof-w2,
-    #proof-w3 {
+    #proof-w3,
+    #proof-w4 {
       opacity: 0; /* each arrives with its shot */
     }
   </style>
   <div id="root" data-composition-id="proof" data-width="1080" data-height="1920">
-    <!-- One line, said in three cuts: each part arrives with its shot (3 s, 5.5 s, 8 s of the ad). -->
+    <!-- Said in four cuts: each part arrives with its shot (3 s, 5.5 s, 7.5 s and 8.5 s of the ad). -->
     <div id="proof-line" class="clip" data-start="0" data-duration="7" data-track-index="0">
       <span id="proof-w1">Type it.</span>
       <span id="proof-w2">Draw it.</span>
-      <span id="proof-w3">Hear it.</span>
+      <span id="proof-w3">Drop in a picture.</span>
+      <span id="proof-w4">Hear it.</span>
     </div>
   </div>
   <script>
@@ -50,7 +54,8 @@
     };
     tl.fromTo("#proof-w1", { scale: 1.07, transformOrigin: "0% 60%" }, { scale: 1, duration: 0.3, ease: "expo.out" }, 0);
     land("#proof-w2", 2.5);
-    land("#proof-w3", 5);
+    land("#proof-w3", 4.5);
+    land("#proof-w4", 5.5);
     window.__timelines["proof"] = tl;
   </script>
 </template>

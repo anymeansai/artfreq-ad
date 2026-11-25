@@ -22,6 +22,7 @@ BPM = 120.0                               # the ad's grid: a beat every 15 pictu
 #             across 1080 px, so every tall shot moves at the same speed and shares one scale;
 #             the hook's shot holds 3 s (it is 1620 px wide and shown pulled back to 1080).
 #   card:     ArtFreq's window from its left edge, 832 points of its 1120 wide (the canvas side).
+#   window:   ArtFreq's whole window, `width` px wide.
 #   fx-card:  ArtFreq FX's whole window.
 #   fx-zoom:  the right end of ArtFreq FX's plot (`seconds` across `width` px).
 OUT_W = 1080
@@ -45,8 +46,10 @@ SHOTS = [
     dict(name="type-tall",    take="type",    frame="tall", seconds=2.0, mark="play", offset=47,  frames=45,  at=120),
     dict(name="draw-card",    take="draw",    frame="card",              mark="stroke", offset=0, frames=15,  at=165),
     dict(name="draw-tall",    take="draw",    frame="tall", seconds=2.0, mark="play", offset=48,  frames=45,  at=180),
-    dict(name="picture-card", take="picture", frame="card",              mark="drop", offset=-5,  frames=15,  at=225),
-    dict(name="picture-tall", take="picture", frame="tall", seconds=2.0, mark="play", offset=62,  frames=60,  at=240),
+    # The picture gets a full second in the whole window: the drop, the picture landing and being
+    # dragged out, and its thumbnail in the window's own Image panel beside it.
+    dict(name="picture-wide", take="picture", frame="window", width=1040, mark="drag", offset=0,   frames=30,  at=225),
+    dict(name="picture-tall", take="picture", frame="tall", seconds=2.0, mark="play", offset=62,  frames=45,  at=255),
     # 10-25 s DEPTH and OFFER: one unbroken take of ArtFreq FX on the loop (the window), with two
     #        closer looks at the words (the same pictures, cropped). From mark "a" each 4 s pass
     #        is a rest, then the words: Carve + Draw (10-14 s), Carve (14-18 s), Carve + Draw on.
@@ -66,7 +69,7 @@ SOUND = [
     dict(take="hook",    mark="play", offset=63, at=0.0,  seconds=3.0,  gain=6.0),   # pass 2, half of pass 3
     dict(take="type",    mark="play", offset=47, at=4.0,  seconds=1.5,  gain=5.5),   # pass 2 (1.5 s at 160 BPM)
     dict(take="draw",    mark="play", offset=48, at=6.0,  seconds=1.5,  gain=4.5),
-    dict(take="picture", mark="play", offset=62, at=8.0,  seconds=2.0,  gain=4.0),
+    dict(take="picture", mark="play", offset=62, at=8.5,  seconds=1.5,  gain=4.0),
     dict(take="fx",      mark="a",    offset=0,  at=10.0, seconds=16.0, gain=3.2, fade_in_ms=0.5),  # the loop through ArtFreq FX, 8 bars
     dict(take="hook",    mark="play", offset=63, at=26.0, seconds=2.0,  gain=5.5),   # the hook's words once more, whole
 ]
