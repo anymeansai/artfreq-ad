@@ -2,7 +2,7 @@
 <html lang="en" data-resolution="portrait">
   <head>
     <meta charset="UTF-8" />
-    <title>ArtFreq ad, hook C: This beat is talking (Instagram Reel, 9:16, 20 s)</title>
+    <title>ArtFreq ad, hook C: This beat is talking (Instagram Reel, 9:16, 16 s)</title>
     <link rel="icon" href="data:," />
     <meta name="viewport" content="width=1080, height=1920" />
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
@@ -50,7 +50,7 @@
       #wf-wrap {
         position: absolute;
         left: -420px;
-        top: 420px;
+        top: 0;   /* turned, it spans y -420 to 1500: "now" is the line at y 1500, above the apps' captions */
         width: 1920px;
         height: 1080px;
         overflow: hidden;
@@ -97,38 +97,39 @@
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="main" data-start="0" data-duration="20" data-width="1080" data-height="1920" data-fps="30">
+    <div id="root" data-composition-id="main" data-start="0" data-duration="16" data-width="1080" data-height="1920" data-fps="30">
       <div id="wf-wrap" data-layout-allow-overflow>
-        <video id="wf" class="clip" src="assets/video/wf.mp4" data-start="0" data-duration="15.9" data-track-index="0" muted playsinline></video>
+        <video id="wf" class="clip" src="assets/video/wf.mp4" data-start="0" data-duration="11.9" data-track-index="0" muted playsinline></video>
       </div>
       <div id="win" data-layout-allow-overflow>
-        <video id="win-v" class="clip" src="assets/video/win.mp4" data-start="15" data-duration="5" data-track-index="1" muted playsinline></video>
+        <video id="win-v" class="clip" src="assets/video/win.mp4" data-start="11" data-duration="5" data-track-index="1" muted playsinline></video>
       </div>
 
-      <div id="close" class="scene" data-composition-id="close" data-composition-src="compositions/close.html" data-start="15.8" data-duration="4.2" data-track-index="2" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="close" class="scene" data-composition-id="close" data-composition-src="compositions/close.html" data-start="12.5" data-duration="3.5" data-track-index="2" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
 
       <!-- the sound: the loop as it came out of ArtFreq FX in that take (tools/mix_audio.py) -->
-      <audio id="mix" src="assets/audio/ad-mix.wav" data-start="0" data-duration="20" data-volume="1" data-track-index="3"></audio>
+      <audio id="mix" src="assets/audio/ad-mix.wav" data-start="0" data-duration="16" data-volume="1" data-track-index="3"></audio>
     </div>
 
     <script>
       window.__timelines = window.__timelines || {};
-      // Turned a quarter right for the first 15 s.
+      // Turned a quarter right for the first 11 s.
       gsap.set("#wf-wrap", { rotation: 90, transformOrigin: "50% 50%" });
       const tl = gsap.timeline({ paused: true });
 
-      // 15 s: it turns back and shrinks onto the same place in the plug-in's window, which comes
+      // 11 s (TRACK still rising): it turns back and shrinks onto the same place in the plug-in's window, which comes
       // up around it; then it goes, and the window is all there is. The numbers put the crop
       // (window points 396.0, 109.5, 302.0 x 151.8, from the take's live-plot rect, c-wf.json)
       // where the window shows it: 1.5 px a point, window top 810 px.
       tl.fromTo(
         "#wf-wrap",
         { x: 0, y: 0, rotation: 90, scaleX: 1, scaleY: 1 },
-        { x: 280.50, y: 128.06, rotation: 0, scaleX: 0.23594, scaleY: 0.21078, duration: 0.8, ease: "power3.inOut", immediateRender: false },
-        15,
+        { x: 280.50, y: 548.06, rotation: 0, scaleX: 0.23594, scaleY: 0.21078, duration: 0.8, ease: "power3.inOut", immediateRender: false },
+        11,
       );
-      tl.fromTo("#win", { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "none", immediateRender: false }, 15.45);
-      tl.fromTo("#wf-wrap", { opacity: 1 }, { opacity: 0, duration: 0.1, ease: "none", immediateRender: false }, 15.8);
+      tl.fromTo("#win", { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "none", immediateRender: false }, 11.45);
+      tl.fromTo("#wf-wrap", { opacity: 1 }, { opacity: 0, duration: 0.1, ease: "none", immediateRender: false }, 11.8);
+      // The bare window holds until the end card lands on the beat at 12.5 s.
 
       window.__timelines["main"] = tl;
     </script>

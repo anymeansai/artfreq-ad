@@ -49,6 +49,30 @@ How it was made:
 - The carve changes the loop little to the ear: -0.9 LU over a bar, nothing below 300 Hz.
 - No prices, no discounts, no reviews or user counts: nothing in the ad that is not shown real.
 
+## Ad C: `ad-artfreq-hookC.mp4`, "This beat is talking" (Instagram Reel)
+
+1080 x 1920, 16 s, made in `hookC/`. One take of ArtFreq FX (Carve + Draw, Depth -80 dB) on the
+plug-in repository's test loop. The live view is turned on its side and fills the screen, so the
+words the plug-in plays rise up it as they sound: there is no text layer until the end card.
+`ad-artfreq-hookC-cover.jpg` is the cover.
+
+| Time | On screen (drawn into the beat) | Sound |
+| --- | --- | --- |
+| 0 - 4 s | HEY / THIS / BEAT / IS / TALKING | each word, carved and drawn into the loop on the beat |
+| 4 - 8 s | TYPE / ANYTHING / DRAW / IT | the same |
+| 8 - 11 s | a brushed bolt, IN / ANY / TRACK | the same |
+| 11 - 12.5 s | the view turns and shrinks into ArtFreq FX's window, TRACK still riding it | the loop |
+| 12.5 - 16 s | AnyMeans Audio, "ArtFreq", "Draw in sound.", anymeansaudio.com, "VST3 + AU · Mac + Windows", "ArtFreq FX comes with ArtFreq Pro" | the loop |
+
+- The words are three pictures (`tools/make_strips_hookC.py`) placed on the canvas as image
+  objects (300 Hz - 12 kHz, one 2-bar pass each); the take swaps the drawing a few pictures before
+  each pass (`--takes c-wf`). The last pass ends on the word "ArtFreq" the window then shows.
+- The shot is the live view between 268 Hz and 13.4 kHz. The view scrolls by whole 256-sample
+  columns (6, 6, 6, 7 a picture); the crop moves by the fraction not yet shown, so the scroll is
+  steady. Nothing is drawn on it.
+- `python3 tools/cut_shots.py <takes> edit_hookC`, `python3 tools/mix_audio.py <takes> edit_hookC`,
+  `npm run render:hookC`.
+
 ## How it is made
 
 ```

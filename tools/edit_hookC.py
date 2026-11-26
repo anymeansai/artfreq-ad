@@ -7,7 +7,7 @@ PROJECT = "hookC"
 FPS = 30
 SAMPLE_RATE = 48000
 SAMPLES_PER_FRAME = SAMPLE_RATE // FPS
-AD_SECONDS = 20.0      # 10 bars: ends where it began in the loop, so the Reel loops in time
+AD_SECONDS = 16.0      # 8 bars: ends where it began in the loop, so the Reel loops in time
 BPM = 120.0
 
 OUT_W = 1080
@@ -24,16 +24,18 @@ F_LO, F_HI = 268.4, 13416.0
 
 SHOTS = [
     # 2.316 s across 1920 px: 829 px a second, as the words were laid out (make_strips_hookC.py)
-    dict(name="wf",  take="c-wf", frame="plotcrop", f_lo=F_LO, f_hi=F_HI, seconds=2.316, out=(1920, 1080), mark="ad0", offset=at(0), frames=at(15.9), at=at(0)),
-    dict(name="win", take="c-wf", frame="fx-card",                                          mark="ad0", offset=at(15), frames=at(5),    at=at(15)),
+    # smooth: the take's view steps 6, 6, 6, 7 columns of 4.868 px a picture; 171 is a 7 (measured)
+    dict(name="wf",  take="c-wf", frame="plotcrop", f_lo=F_LO, f_hi=F_HI, seconds=2.316, out=(1920, 1080),
+         smooth=dict(jump=171, colw=4.8683), mark="ad0", offset=at(0), frames=at(11.9), at=at(0)),
+    dict(name="win", take="c-wf", frame="fx-card",                                          mark="ad0", offset=at(11), frames=at(5),    at=at(11)),
 ]
 
 STILLS = []
 
 SOUND = [
-    dict(take="c-wf", mark="ad0", offset=at(0), at=0.0, seconds=20.0, gain=0.0, fade_in_ms=0.0, tail_ms=0.0, out_ms=3.0),
+    dict(take="c-wf", mark="ad0", offset=at(0), at=0.0, seconds=16.0, gain=0.0, fade_in_ms=0.0, tail_ms=0.0, out_ms=3.0),
 ]
 
 DRUMS = None
 
-SECTIONS = (("words", 0, 15), ("reveal", 15, 20))
+SECTIONS = (("words", 0, 11), ("reveal", 11, 16))

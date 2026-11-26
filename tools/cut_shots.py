@@ -92,6 +92,13 @@ def main():
         assert 0 <= first and last < meta["frames"], (shot["name"], first, last, meta["frames"])
         (cx, cy, cw, ch), (ow, oh) = framing(shot, meta)
         crop = f"crop={round(cw)}:{round(ch)}:{round(cx)}:{round(cy)}"
+        if "smooth" in shot:
+            # The live view scrolls by whole columns (256 samples) while a picture is 1600 samples,
+            # so it steps 6, 6, 6, 7 columns a picture. Moving the crop by the column fraction the
+            # view has not yet shown makes the scroll steady; `jump` is a take picture with a step of 7.
+            k, colw = shot["smooth"]["jump"], shot["smooth"]["colw"]
+            x = f"{cx - colw:.3f}+{colw:.4f}*mod((n+{first - k})/4+0.125\,1)"
+            crop = f"crop={round(cw)}:{round(ch)}:'{x}':{round(cy)}"
         vf = (f"select='between(n\\,{first}\\,{last})',setpts=N/{edit.FPS}/TB,{crop},"
               f"scale={ow}:{oh}:flags=lanczos+accurate_rnd+full_chroma_int:out_color_matrix=bt709:out_range=tv,format=yuv420p")
         out = VIDEO / f"{shot['name']}.mp4"

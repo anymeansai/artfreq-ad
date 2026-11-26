@@ -972,7 +972,7 @@ void filmHookC (const juce::File& outputDir)
     constexpr int passFrames = 4 * framesPerSecond;
     constexpr int preRollFrames = passFrames;                    // one pass of the loop as it is
     constexpr int ad0Offset = preRollFrames + 3 * framesPerSecond / 2;
-    constexpr double adSeconds = 20.2;
+    constexpr double adSeconds = 16.2;
 
     Take take ("c-wf", true, [] (ArtFreqProcessor& p)
     {
@@ -996,10 +996,10 @@ void filmHookC (const juce::File& outputDir)
     const auto sound = take.marks["sound"];
     take.marks["ad0"] = sound + ad0Offset;
 
-    // The drawings, one a pass: the four word pictures, then "ArtFreq" as text, as it comes.
+    // The drawings, one a pass: the three word pictures, then "ArtFreq" as text, as it comes.
     std::vector<ArtDocument> drawings;
 
-    for (int i = 1; i <= 4; ++i)
+    for (int i = 1; i <= 3; ++i)
     {
         const auto file = outputDir.getChildFile ("c-p" + juce::String (i) + ".png");
         const auto image = juce::ImageFileFormat::loadFrom (file);
