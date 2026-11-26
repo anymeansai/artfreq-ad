@@ -1,0 +1,52 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    .hk-line {
+      position: absolute;
+      left: 120px;
+      top: 300px;
+      width: 840px;
+      font-family: "Inter", sans-serif;
+      font-weight: 650;
+      letter-spacing: -0.045em;
+      color: #f4f5f8;
+    }
+    .hk-line span {
+      display: block;
+      width: max-content;
+      white-space: nowrap;
+    }
+    #hk-1 {
+      font-size: 150px;
+      line-height: 0.94;
+    }
+    #hk-2 {
+      top: 316px;
+      font-size: 92px;
+      line-height: 1.02;
+    }
+  </style>
+  <div id="root" data-composition-id="hook" data-width="1080" data-height="1920">
+    <!-- 0-2 s. On screen from the first picture: the open question, which the live view below
+         answers by carving the name into the beat as it plays. -->
+    <div id="hk-1" class="hk-line clip" data-start="0" data-duration="2" data-track-index="0">
+      <span>Hidden in</span>
+      <span>this beat:</span>
+    </div>
+    <!-- 2-4 s. Over the plug-in's window: where the name is, and where it is not. -->
+    <div id="hk-2" class="hk-line clip" data-start="2" data-duration="2" data-track-index="0">
+      <span>Only a spectrogram</span>
+      <span>shows it.</span>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    // Each line is sharp on its cut and settles from a little large; then it holds still.
+    tl.fromTo("#hk-1", { scale: 1.05, transformOrigin: "0% 50%" }, { scale: 1, duration: 0.35, ease: "expo.out" }, 0);
+    tl.fromTo("#hk-2", { scale: 1.06, transformOrigin: "0% 50%" }, { scale: 1, duration: 0.3, ease: "expo.out", immediateRender: false }, 2);
+    window.__timelines["hook"] = tl;
+  </script>
+</template>

@@ -765,6 +765,201 @@ void filmEffect (const juce::File& outputDir)
     }
 }
 
+//==============================================================================
+// Ad B, "Hidden in this beat" (hookB/). Every take is ArtFreq FX on the same loop and on one
+// clock: the DAW starts so that the loop comes out of the plug-in at mark "sound", and plays on;
+// mark "ad0" is two bars later, the ad's first picture. Ad time t is take picture ad0 + 30 t in
+// every take, and the loop is at the same place there in every take, so a cut from one take to
+// another on a picture keeps the music in step. The drawing passes once a bar (Length 1 bar,
+// Repeat), in Carve.
+
+constexpr int hookBPreRollFrames = 4 * framesPerSecond;   // two bars of the loop before the ad starts
+constexpr float hookBLowHz = 400.0f;                      // the drawings: 400 Hz - 12.5 kHz
+
+ArtDocument hookBTypedDrawing, hookBDroppedDrawing;       // what the typing and the drop takes end with
+
+std::unique_ptr<Take> startHookB (const juce::String& name, const ArtDocument& drawing, float depthDb,
+                                  double adSeconds, bool live, const juce::File& outputDir)
+{
+    auto take = std::make_unique<Take> (name, true, [depthDb] (ArtFreqProcessor& p)
+    {
+        setParameter (p, params::id::length, 2.0f);    // 1 bar: 2 s at 120 BPM (the live view shows 4 s)
+        setParameter (p, params::id::repeat, 1.0f);
+        setParameter (p, params::id::mode, static_cast<float> (static_cast<int> (EffectMode::carve)));
+        setParameter (p, params::id::depth, depthDb);
+        setParameter (p, params::id::density, 512.0f);
+        setView (p, -20.0f);
+    }, outputDir, drawing);
+
+    take->input = makeSong ((hookBPreRollFrames + juce::roundToInt (adSeconds * framesPerSecond))
+                                / static_cast<double> (framesPerSecond) + 2.0);
+
+    if (live)
+        take->showLive();
+
+    take->noteRects (live ? "live/" : "canvas/");
+
+    // ArtFreq FX's output is its latency behind its input: the DAW starts that much before a
+    // picture, so the loop comes out of the plug-in from that picture's first sample on.
+    const auto latency = take->processor->getLatencySamples();
+    const auto leadFrames = (latency + samplesPerFrame - 1) / samplesPerFrame;
+    take->pressPlay (leadFrames * samplesPerFrame - latency);
+    take->film (leadFrames);
+    take->mark ("sound");
+    take->marks["ad0"] = take->marks["sound"] + hookBPreRollFrames;
+    return take;
+}
+
+/** Films up to (not including) the picture at ad time `adSeconds`. */
+void filmUntil (Take& take, double adSeconds)
+{
+    const auto end = take.marks["ad0"] + juce::roundToInt (adSeconds * framesPerSecond);
+
+    while (take.frames < end && take.editor != nullptr)
+        take.film();
+}
+
+void setDepth (Take& take, float depthDb, const char* mark)
+{
+    setParameter (*take.processor, params::id::depth, depthDb);
+    take.processor->rebuildPlanIfNeeded();
+    pump (40);
+    take.mark (mark);
+}
+
+/** "Type your name.": the text box as "+ Text" makes it (the word "Text"), placed, selected so
+    its settings are in the drawer, and the name typed into its text field while the loop plays. */
+void filmHookBType (const juce::File& outputDir)
+{
+    ArtDocument drawing;
+    drawing.objects.push_back (makeWord ("Text", hookBLowHz, readHighHz, 0.06f, 0.94f));
+    const auto id = drawing.objects.back().id;
+
+    auto take = startHookB ("b-type", drawing, -80.0f, 6.2, false, outputDir);
+    take->editor->selectObject (id);   // as if clicked: handles, and its settings in the drawer
+    take->settle();
+    take->noteRects ("selected/");
+    check (take->editor->isDrawerOpen(), "b-type: the drawer is open on the text");
+
+    filmUntil (*take, 4.0);
+
+    if (auto* field = findPart<juce::TextEditor> (*take->editor, "inspector-text"))
+    {
+        field->selectAll();   // as "+ Text" leaves it: typing replaces the word
+        take->mark ("typing");
+
+        for (const auto letter : juce::String ("YOUR\nNAME"))
+        {
+            field->insertTextAtCaret (juce::String::charToString (letter));
+            pump (30);
+            take->film (letter == '\n' ? 2 : 4);
+        }
+    }
+
+    take->mark ("typed");
+    filmUntil (*take, 5.5);
+    take->settle();
+    take->mark ("settled");
+    filmUntil (*take, 6.2);
+
+    hookBTypedDrawing = take->processor->getDocument();
+    check (hookBTypedDrawing.objects.size() == 1 && hookBTypedDrawing.objects.front().text == "YOUR\nNAME",
+           "b-type: the drawing is the typed name");
+}
+
+/** The hook: the live view of the loop, as it is for two bars (Depth 0 dB), then the typed name
+    carved into it once a bar from the ad's first picture on. */
+void filmHookBHook (const juce::File& outputDir)
+{
+    check (! hookBTypedDrawing.objects.empty(), "b-hook: film b-type first (its drawing is used here)");
+
+    auto take = startHookB ("b-hook", hookBTypedDrawing, 0.0f, 16.2, true, outputDir);
+    filmUntil (*take, -2.0 / framesPerSecond);   // the bar has begun; the name starts 0.12 s into it
+    setDepth (*take, -80.0f, "carve");
+    filmUntil (*take, 16.2);
+}
+
+/** "Or drop in your logo.": a logo file dropped on the empty canvas while the loop plays, then
+    dragged out by two of its corners to the shape it has. */
+void filmHookBDrop (const juce::File& outputDir, const juce::File& logo)
+{
+    auto take = startHookB ("b-drop", ArtDocument(), -80.0f, 10.2, false, outputDir);
+    const juce::StringArray files { logo.getFullPathName() };
+    check (take->canvas->isInterestedInFileDrag (files), "b-drop: the canvas takes the logo file");
+
+    const auto area0 = take->canvas->getDrawingArea();
+    const auto x = juce::roundToInt (area0.getCentreX()), y = juce::roundToInt (area0.getY() + 0.42f * area0.getHeight());
+
+    filmUntil (*take, 8.0);
+    take->mark ("drag");
+    take->canvas->fileDragEnter (files, x, y);   // "Drop to add the picture here"
+    filmUntil (*take, 8.27);
+    take->mark ("drop");
+    take->canvas->filesDropped (files, x, y);    // lands under the mouse, selected
+    pump (30);
+    take->film (2);
+
+    // Dragged out to keep the logo's own shape on screen: the live view shows a bar across 326
+    // of its points and the scale's 3 decades across 300, so a box of the logo's aspect spans
+    // this much of the bar.
+    const auto selected = take->editor->getSelectedObject();
+    check (! selected.isNull(), "b-drop: the dropped logo is selected");
+    const auto logoImage = juce::ImageFileFormat::loadFrom (logo);
+    const auto aspect = logoImage.isValid() ? logoImage.getWidth() / static_cast<double> (logoImage.getHeight()) : 1.0;
+    const auto heightPoints = 300.0 * std::log10 (readHighHz / hookBLowHz) / 3.0;
+    const auto span = juce::jlimit (0.2, 0.9, heightPoints * aspect / 326.0);
+    const auto scale = take->processor->getScale();
+
+    const auto place = [&] (double time, double hz)
+    {
+        const auto area = take->canvas->getDrawingArea();
+        return juce::Point<float> (area.getX() + static_cast<float> (time) * area.getWidth(),
+                                   area.getY() + static_cast<float> (1.0 - scale.toNorm (hz)) * area.getHeight());
+    };
+    const auto dragHandle = [&] (bool right, bool top, double time, double hz, int pictures)
+    {
+        const auto box = take->canvas->getObjectBounds (selected).reduced (ui::CanvasView::handleReach);
+        const juce::Point<float> from (right ? box.getRight() : box.getX(), top ? box.getY() : box.getBottom());
+        const auto held = juce::ModifierKeys (juce::ModifierKeys::leftButtonModifier);
+        take->canvas->mouseDown (mouseEventAt (*take->canvas, from, from, held));
+
+        for (int i = 1; i <= pictures; ++i)
+        {
+            const auto to = place (time, hz);
+            take->canvas->mouseDrag (mouseEventAt (*take->canvas, from + (to - from) * (static_cast<float> (i) / pictures), from, held, true));
+            take->film();
+        }
+
+        take->canvas->mouseUp (mouseEventAt (*take->canvas, place (time, hz), from, {}, true));
+    };
+
+    take->mark ("resize");
+    dragHandle (true, true, 0.5 + span / 2.0, readHighHz, 4);
+    dragHandle (false, false, 0.5 - span / 2.0, hookBLowHz, 4);
+    take->mark ("resized");
+    take->processor->rebuildPlanIfNeeded();
+    pump (40);
+    take->noteRects ("dropped/");
+    filmUntil (*take, 9.4);
+    take->settle();
+    take->mark ("settled");
+    filmUntil (*take, 10.2);
+
+    hookBDroppedDrawing = take->processor->getDocument();
+    check (hookBDroppedDrawing.objects.size() == 1, "b-drop: the drawing is the dropped logo");
+}
+
+/** The logo's live view: the loop as it is, then the dropped logo carved into it from ad 10 s. */
+void filmHookBLogo (const juce::File& outputDir)
+{
+    check (! hookBDroppedDrawing.objects.empty(), "b-logo: film b-drop first (its drawing is used here)");
+
+    auto take = startHookB ("b-logo", hookBDroppedDrawing, 0.0f, 12.2, true, outputDir);
+    filmUntil (*take, 10.0 - 2.0 / framesPerSecond);
+    setDepth (*take, -80.0f, "carve");
+    filmUntil (*take, 12.2);
+}
+
 } // namespace
 
 int main (int argc, char* argv[])
@@ -787,6 +982,7 @@ int main (int argc, char* argv[])
     const auto cwd = juce::File::getCurrentWorkingDirectory();
     const auto outputDir = cwd.getChildFile (argv[1]);
     juce::StringArray wanted;
+    juce::File logoFile;
 
     for (int i = 2; i + 1 < argc; i += 2)
     {
@@ -796,6 +992,8 @@ int main (int argc, char* argv[])
             wanted = juce::StringArray::fromTokens (value, ",", {});
         else if (option == "--scale")
             shotScale = value.getFloatValue();
+        else if (option == "--logo")
+            logoFile = cwd.getChildFile (value);
         else
         {
             std::cerr << "unknown option " << option << std::endl;
@@ -820,6 +1018,12 @@ int main (int argc, char* argv[])
     if (want ("picture"))   filmPicture (outputDir);
     if (want ("fx"))        filmEffect (outputDir);
     if (want ("still"))     filmStill (outputDir);
+
+    // Ad B: only when asked for by name; b-hook uses b-type's drawing, b-logo uses b-drop's.
+    if (wanted.contains ("b-type"))   filmHookBType (outputDir);
+    if (wanted.contains ("b-hook"))   filmHookBHook (outputDir);
+    if (wanted.contains ("b-drop"))   filmHookBDrop (outputDir, logoFile);
+    if (wanted.contains ("b-logo"))   filmHookBLogo (outputDir);
 
     pump (50);
     licensetest::removeRunnerLicensing();

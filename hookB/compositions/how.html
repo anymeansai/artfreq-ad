@@ -1,0 +1,50 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    .hw-line {
+      position: absolute;
+      left: 120px;
+      top: 300px;
+      width: 840px;
+      font-family: "Inter", sans-serif;
+      font-weight: 650;
+      font-size: 104px;
+      line-height: 1.04;
+      letter-spacing: -0.045em;
+      color: #f4f5f8;
+    }
+    .hw-line span {
+      display: block;
+      width: max-content;
+      white-space: nowrap;
+    }
+    #hw-play {
+      opacity: 0; /* arrives with its shot, at 6 s */
+    }
+  </style>
+  <div id="root" data-composition-id="how" data-width="1080" data-height="1920">
+    <!-- 4-8 s: the two steps, each arriving with its shot (typing at 4 s, the live view at 6 s) -->
+    <div id="hw-1" class="hw-line clip" data-start="0" data-duration="4" data-track-index="0">
+      <span id="hw-type">Type your name.</span>
+      <span id="hw-play">Press play.</span>
+    </div>
+    <!-- 8-12 s: the logo, dropped in (8 s) and carved (10 s) -->
+    <div id="hw-2" class="hw-line clip" data-start="4" data-duration="4" data-track-index="0">
+      <span>Or drop in</span>
+      <span>your logo.</span>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    const land = (id, at) =>
+      tl.fromTo(id, { scale: 1.06, transformOrigin: "0% 50%" }, { scale: 1, duration: 0.3, ease: "expo.out", immediateRender: false }, at);
+    land("#hw-type", 0);
+    tl.set("#hw-play", { opacity: 1 }, 2);
+    land("#hw-play", 2);
+    land("#hw-2", 4);
+    window.__timelines["how"] = tl;
+  </script>
+</template>

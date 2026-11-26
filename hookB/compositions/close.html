@@ -1,0 +1,125 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    #cl-yours {
+      position: absolute;
+      left: 120px;
+      top: 330px;
+      width: max-content;
+      font-family: "Inter", sans-serif;
+      font-weight: 650;
+      font-size: 160px;
+      line-height: 1;
+      letter-spacing: -0.05em;
+      color: #f4f5f8;
+      white-space: nowrap;
+    }
+    /* The end card. "AnyMeans Audio" as the site's header sets it: the lockup, then Audio. */
+    #cl-brand {
+      position: absolute;
+      left: 104px;
+      top: 300px;
+      height: 76px;
+      display: flex;
+      align-items: center;
+    }
+    #cl-brand img {
+      display: block;
+      height: 76px;
+      width: auto;
+    }
+    #cl-brand span {
+      margin-left: -3px;
+      font-family: "Inter", sans-serif;
+      font-weight: 600;
+      font-size: 41px;
+      line-height: 1;
+      letter-spacing: -0.012em;
+      color: #e8ebf2;
+      white-space: nowrap;
+    }
+    #cl-card {
+      position: absolute;
+      left: 120px;
+      top: 404px;
+      width: max-content;
+      font-family: "Inter", sans-serif;
+      color: #f4f5f8;
+    }
+    #cl-card span {
+      display: block;
+      white-space: nowrap;
+    }
+    #cl-name {
+      font-weight: 650;
+      font-size: 156px;
+      line-height: 1;
+      letter-spacing: -0.05em;
+    }
+    #cl-line {
+      margin-top: 10px;
+      font-weight: 600;
+      font-size: 88px;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+    #cl-cta {
+      margin-top: 40px;
+      font-weight: 600;
+      font-size: 52px;
+      line-height: 1;
+      letter-spacing: -0.02em;
+    }
+    #cl-cta b {
+      font-family: "DM Mono", monospace;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      color: #f9a13a; /* the one accent: the website */
+    }
+    #cl-formats {
+      margin-top: 34px;
+      font-weight: 500;
+      font-size: 44px;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      color: #c3c8d2;
+    }
+    #cl-pro {
+      margin-top: 18px;
+      font-family: "DM Mono", monospace;
+      font-weight: 500;
+      font-size: 29px;
+      line-height: 1;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #9097a6;
+    }
+  </style>
+  <div id="root" data-composition-id="close" data-width="1080" data-height="1920">
+    <!-- 12-13.5 s: the answer to the hook, over the name carved again -->
+    <div id="cl-yours" class="clip" data-start="0" data-duration="1.5" data-track-index="0">Hide yours.</div>
+    <!-- 13.5-16 s: the end card; the live view steps down below it and keeps playing -->
+    <div id="cl-brand" class="clip" data-start="1.5" data-duration="2.5" data-track-index="1">
+      <img id="cl-lockup" src="assets/img/anymeans-lockup.svg" alt="AnyMeans" />
+      <span>Audio</span>
+    </div>
+    <div id="cl-card" class="clip" data-start="1.5" data-duration="2.5" data-track-index="0">
+      <span id="cl-name">ArtFreq</span>
+      <span id="cl-line">Draw in sound.</span>
+      <span id="cl-cta">Link in bio · <b>anymeansaudio.com</b></span>
+      <span id="cl-formats">VST3 + AU · Mac + Windows</span>
+      <span id="cl-pro">ArtFreq FX comes with ArtFreq Pro</span>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#cl-yours", { scale: 1.08, transformOrigin: "0% 50%" }, { scale: 1, duration: 0.3, ease: "expo.out" }, 0);
+    // The name lands on the cut; the call to action within a tenth of a second; the small print after.
+    tl.fromTo("#cl-name", { scale: 1.06, transformOrigin: "0% 60%" }, { scale: 1, duration: 0.3, ease: "expo.out", immediateRender: false }, 1.5);
+    tl.fromTo(["#cl-formats", "#cl-pro"], { opacity: 0 }, { opacity: 1, duration: 0.15, ease: "none", immediateRender: false }, 1.8);
+    window.__timelines["close"] = tl;
+  </script>
+</template>

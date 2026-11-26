@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Mixes the ad's sound: assets/audio/ad-mix.wav (48 kHz, 24-bit stereo, 28 s).
 
-    python3 tools/mix_audio.py <takes-dir>
+    python3 tools/mix_audio.py <takes-dir> [edit-module]
 
 What is in it:
 
@@ -16,6 +16,7 @@ What is in it:
 
 Needs numpy and ffmpeg (to read the takes' float WAVs, measure loudness and write the file).
 """
+import importlib
 import json
 import re
 import subprocess
@@ -25,10 +26,10 @@ from pathlib import Path
 import numpy as np
 
 sys.path.insert(0, str(Path(__file__).parent))
-import edit  # noqa: E402
+edit = importlib.import_module(sys.argv[2] if len(sys.argv) > 2 else "edit")
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT = ROOT / "assets" / "audio" / "ad-mix.wav"
+OUT = ROOT / getattr(edit, "PROJECT", ".") / "assets" / "audio" / "ad-mix.wav"
 SR = edit.SAMPLE_RATE
 TARGET_LUFS = -14.0      # where Reels and TikTok level to
 CEILING_DB = -1.5        # sample peak; the true peak is checked after
@@ -64,8 +65,10 @@ def loudness(audio, start=0.0, end=None):
 def fade(clip, in_ms=3.0, out_ms=8.0):
     n_in, n_out = int(in_ms * SR / 1000), int(out_ms * SR / 1000)
     clip = clip.copy()
-    clip[:n_in] *= np.linspace(0.0, 1.0, n_in)[:, None]
-    clip[-n_out:] *= np.linspace(1.0, 0.0, n_out)[:, None]
+    if n_in > 0:
+        clip[:n_in] *= np.linspace(0.0, 1.0, n_in)[:, None]
+    if n_out > 0:
+        clip[-n_out:] *= np.linspace(1.0, 0.0, n_out)[:, None]
     return clip
 
 
@@ -176,16 +179,21 @@ def main():
         meta = json.loads((takes / f"{cut['take']}.json").read_text())
         audio = read(takes / f"{cut['take']}.wav")
         first = (meta["marks"][cut["mark"]] + cut["offset"]) * edit.SAMPLES_PER_FRAME
-        n = int(round(cut["seconds"] * SR))
-        clip = fade(audio[first:first + n], in_ms=cut.get("fade_in_ms", 3.0)) * db(cut["gain"])
+        # A cut can run on under the next one for `tail_ms` and fade out across it while the next
+        # fades in (when both are the same music, this keeps its level through the cut).
+        tail = int(round(cut.get("tail_ms", 0.0) * SR / 1000))
+        n = int(round(cut["seconds"] * SR)) + tail
+        clip = fade(audio[first:first + n], in_ms=cut.get("fade_in_ms", 3.0),
+                    out_ms=cut.get("out_ms", cut.get("tail_ms", 8.0))) * db(cut["gain"])
         at = int(round(cut["at"] * SR))
         n = min(len(clip), total - at)
         mix[at:at + n] += clip[:n]
         print(f"{cut['take']:8s} take samples {first}..{first + n} -> {cut['at']:5.2f} s, {cut['gain']:+.1f} dB, "
               f"peak {20 * np.log10(np.max(np.abs(clip)) + 1e-12):+.1f} dBFS")
 
-    drums = drum_loop(edit.DRUMS["start"], edit.DRUMS["end"]) * db(edit.DRUMS["gain"])
-    mix += drums[:, None]
+    if getattr(edit, "DRUMS", None):
+        drums = drum_loop(edit.DRUMS["start"], edit.DRUMS["end"]) * db(edit.DRUMS["gain"])
+        mix += drums[:, None]
 
     # Level to the target, then catch the peaks; twice, as limiting lowers the loudness a little.
     for _ in range(3):
@@ -195,7 +203,7 @@ def main():
 
     lufs, true_peak = loudness(mix)
     print(f"whole: {lufs:.1f} LUFS, true peak {true_peak:.1f} dBTP, limiter at most {reduction:.1f} dB")
-    for name, a, b in (("hook", 0, 3), ("proof", 3, 10), ("depth", 10, 20), ("offer", 20, 25), ("end", 25, 28)):
+    for name, a, b in getattr(edit, "SECTIONS", (("hook", 0, 3), ("proof", 3, 10), ("depth", 10, 20), ("offer", 20, 25), ("end", 25, 28))):
         l, p = loudness(mix, a, b)
         print(f"  {name:6s} {a:2d}-{b:2d} s: {l:6.1f} LUFS, peak {p:5.1f} dBTP")
 

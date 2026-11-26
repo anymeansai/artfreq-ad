@@ -20,6 +20,35 @@ Two small labels are not in the brief's copy: the row "Dry / Carve + Draw / Carv
 section (the one that is true of the sound at that moment is lit) and "ArtFreq FX comes with
 ArtFreq Pro" at 20 - 25 s. The ad shows no prices; the one amber accent is the website on the end card.
 
+## Ad B: `ad-artfreq-hookB.mp4`, "Hidden in this beat" (Instagram Reel)
+
+1080 x 1920, 16 s (8 bars at 120 BPM, so the Reel loops in time), made in `hookB/`. One take
+filmed from ArtFreq FX is on screen at any moment, and the sound is that take's own output: the
+plug-in repository's test loop, with the name or logo carved into it (Carve, Depth -80 dB).
+`ad-artfreq-hookB-cover.jpg` is the frame to use as the Reel's cover.
+
+| Time | On screen | Why it is there |
+| --- | --- | --- |
+| 0 - 2 s | "Hidden in this beat:" over the loop's live view; YOUR NAME carves itself into it | an open question the picture answers (curiosity gap), the beat from the first frame |
+| 2 - 4 s | "Only a spectrogram shows it." over ArtFreq FX's window | the promise, and the product on screen |
+| 4 - 8 s | "Type your name." (typed into the plug-in) / "Press play." (carved into the beat) | two steps: it looks easy because it is |
+| 8 - 12 s | "Or drop in your logo." (a logo file dropped on the canvas and dragged out, then carved) | a second use, and the picture feature |
+| 12 - 13.5 s | "Hide yours." | the call that answers the hook, addressed to the viewer |
+| 13.5 - 16 s | AnyMeans Audio, "ArtFreq", "Draw in sound.", "Link in bio · anymeansaudio.com", "VST3 + AU · Mac + Windows", "ArtFreq FX comes with ArtFreq Pro" | one action, and what it runs on |
+
+How it was made:
+
+- `tools/adreel` films four takes of ArtFreq FX on one clock (`--takes b-type,b-hook,b-drop,b-logo
+  --logo <png>`): the loop plays from two bars before the ad, and ad time t is the same picture,
+  and the same place in the loop, in every take, so cutting between takes keeps the music going.
+  b-hook carves the drawing b-type ends with (the typed name), b-logo the one b-drop ends with
+  (the dropped logo, the AnyMeans mark cropped to its shape). Before the hook the loop passes
+  through untouched (Depth 0 dB: the output equals the input, sample for sample).
+- `python3 tools/cut_shots.py <takes> edit_hookB` and `python3 tools/mix_audio.py <takes> edit_hookB`
+  cut the shots and the sound (`tools/edit_hookB.py` holds the numbers); `npm run render:hookB`.
+- The carve changes the loop little to the ear: -0.9 LU over a bar, nothing below 300 Hz.
+- No prices, no discounts, no reviews or user counts: nothing in the ad that is not shown real.
+
 ## How it is made
 
 ```

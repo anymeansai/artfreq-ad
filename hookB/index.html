@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ArtFreq ad, hook B: Hidden in this beat (Instagram Reel, 9:16, 16 s)</title>
+    <link rel="icon" href="data:," />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      /* anymeansaudio.com's own type: Inter for text, DM Mono for small labels (files in assets/fonts). */
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-weight: 100 900;
+        font-display: block;
+        src: url("assets/fonts/inter-latin.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "DM Mono";
+        font-style: normal;
+        font-weight: 400;
+        font-display: block;
+        src: url("assets/fonts/dm-mono-400.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "DM Mono";
+        font-style: normal;
+        font-weight: 500;
+        font-display: block;
+        src: url("assets/fonts/dm-mono-500.woff2") format("woff2");
+      }
+
+      /* The site's colours. Amber is the one accent: the website on the end card, nothing else. */
+      :root {
+        --bg: #0b0d12;
+        --shot: #0a0c10;
+        --line: rgba(255, 255, 255, 0.12);
+        --text: #f4f5f8;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: var(--bg);
+        -webkit-font-smoothing: antialiased;
+        text-rendering: geometricPrecision;
+      }
+      #root {
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Inter", sans-serif;
+      }
+
+      /* The plug-in, filmed (tools/adreel; shots cut by tools/cut_shots.py at these sizes, so a
+         pixel of a shot is a pixel here). Each frame holds one way of looking at the real window;
+         the timeline shows a frame only while one of its shots plays. */
+      .frame {
+        position: absolute;
+        left: 0;
+        width: 1080px;
+        overflow: hidden;
+        background: var(--shot);
+        opacity: 0;
+      }
+      .frame::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-top: 2px solid var(--line);
+        border-bottom: 2px solid var(--line);
+        pointer-events: none;
+      }
+      .frame .in {
+        position: absolute;
+        inset: 0;
+      }
+      .frame video {
+        position: absolute;
+        left: 0;
+        top: 0;
+        display: block;
+      }
+
+      /* live: the newest 2 s of ArtFreq FX's live view (the loop, and what is carved into it) */
+      #live {
+        top: 650px;
+        height: 994px;
+        z-index: 1;
+      }
+      #live video {
+        width: 1080px;
+        height: 994px;
+      }
+
+      /* fx: ArtFreq FX's whole window, edge to edge */
+      #fx {
+        top: 700px;
+        height: 660px;
+        z-index: 2;
+      }
+      #fx video {
+        width: 1080px;
+        height: 660px;
+      }
+
+      /* the words on top: one scene per section (compositions/) */
+      .scene {
+        z-index: 10;
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="16"
+      data-width="1080"
+      data-height="1920"
+      data-fps="30"
+    >
+      <!-- ============ the plug-in, filmed; silent here, the sound is #mix ============ -->
+
+      <div id="live" class="frame" data-layout-allow-overflow>
+        <div id="live-in" class="in">
+          <!-- 0-2 s: the loop, and the name being carved into it -->
+          <video id="hook-live" class="clip" src="assets/video/hook-live.mp4" data-start="0" data-duration="2" data-track-index="0" muted playsinline></video>
+          <!-- 6-8 s: the typed name, carved as the loop plays -->
+          <video id="play-live" class="clip" src="assets/video/play-live.mp4" data-start="6" data-duration="2" data-track-index="0" muted playsinline></video>
+          <!-- 10-12 s: the dropped logo, carved -->
+          <video id="logo-live" class="clip" src="assets/video/logo-live.mp4" data-start="10" data-duration="2" data-track-index="0" muted playsinline></video>
+          <!-- 12-16 s: the name again, under "Hide yours." and the end card -->
+          <video id="end-live" class="clip" src="assets/video/end-live.mp4" data-start="12" data-duration="4" data-track-index="0" muted playsinline></video>
+        </div>
+      </div>
+
+      <div id="fx" class="frame" data-layout-allow-overflow>
+        <div id="fx-in" class="in">
+          <!-- 2-4 s: the plug-in it happens in -->
+          <video id="hook-window" class="clip" src="assets/video/hook-window.mp4" data-start="2" data-duration="2" data-track-index="1" muted playsinline></video>
+          <!-- 4-6 s: the name typed into its text field while the loop plays -->
+          <video id="type-ui" class="clip" src="assets/video/type-ui.mp4" data-start="4" data-duration="2" data-track-index="1" muted playsinline></video>
+          <!-- 8-10 s: a logo file dropped on the canvas and dragged out -->
+          <video id="drop-ui" class="clip" src="assets/video/drop-ui.mp4" data-start="8" data-duration="2" data-track-index="1" muted playsinline></video>
+        </div>
+      </div>
+
+      <!-- ============ the words ============ -->
+
+      <div id="hook" class="scene" data-composition-id="hook" data-composition-src="compositions/hook.html" data-start="0" data-duration="4" data-track-index="2" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="how" class="scene" data-composition-id="how" data-composition-src="compositions/how.html" data-start="4" data-duration="8" data-track-index="2" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="close" class="scene" data-composition-id="close" data-composition-src="compositions/close.html" data-start="12" data-duration="4" data-track-index="2" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+
+      <!-- ============ the sound: the loop as it came out of ArtFreq FX (tools/mix_audio.py) ============ -->
+      <audio id="mix" src="assets/audio/ad-mix.wav" data-start="0" data-duration="16" data-volume="1" data-track-index="3"></audio>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      // Which frame is on screen when (seconds). Every change is a hard cut on a bar line.
+      const show = (id, from, to) => {
+        tl.set(id, { opacity: 1 }, from);
+        tl.set(id, { opacity: 0 }, to);
+      };
+      tl.set("#live", { opacity: 1 }, 0);
+      tl.set("#live", { opacity: 0 }, 2);
+      show("#fx", 2, 6);
+      show("#live", 6, 8);
+      show("#fx", 8, 10);
+      tl.set("#live", { opacity: 1 }, 10);
+
+      // Each cut lands a little large and settles (the picture inside its frame).
+      const land = (id, at, from = 1.04) =>
+        tl.fromTo(
+          id,
+          { scale: from, transformOrigin: "50% 40%" },
+          { scale: 1, duration: 0.3, ease: "expo.out", immediateRender: false },
+          at,
+        );
+      land("#live-in", 0, 1.06);
+      land("#fx-in", 2);
+      land("#fx-in", 4);
+      land("#live-in", 6);
+      land("#fx-in", 8);
+      land("#live-in", 10);
+      land("#live-in", 12);
+
+      // The live view steps down to make room for the end card, and keeps playing; it arrives
+      // on the beat at 13.5 s, when the end card's words land.
+      tl.fromTo("#live", { y: 0 }, { y: 330, duration: 0.35, ease: "power3.inOut", immediateRender: false }, 13.15);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

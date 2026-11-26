@@ -1,23 +1,28 @@
 #!/usr/bin/env python3
 """Cuts the ad's shots out of the takes filmed by tools/adreel.
 
-    python3 tools/cut_shots.py <takes-dir>
+    python3 tools/cut_shots.py <takes-dir> [edit-module]
+
+The edit module (default `edit`, the first ad; `edit_hookB` for the second) lists the shots and
+names the project folder they go into (its PROJECT, default the repository's root).
 
 Writes assets/video/<shot>.mp4 (H.264, 30 fps, no sound: the sound is mixed by mix_audio.py)
 and assets/img/<still>.png. A shot is a crop of the take's pictures, scaled down with Lanczos;
 nothing is retimed, recoloured, sharpened or drawn on.
 """
+import importlib
 import json
 import subprocess
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
-import edit  # noqa: E402
+edit = importlib.import_module(sys.argv[2] if len(sys.argv) > 2 else "edit")
 
 ROOT = Path(__file__).resolve().parent.parent
-VIDEO = ROOT / "assets" / "video"
-IMG = ROOT / "assets" / "img"
+PROJECT = ROOT / getattr(edit, "PROJECT", ".")
+VIDEO = PROJECT / "assets" / "video"
+IMG = PROJECT / "assets" / "img"
 
 
 def even(v):
@@ -51,6 +56,10 @@ def framing(shot, meta):
         x, y, w, h = rect("live-plot")
         cw = w * shot["seconds"] / meta["liveSeconds"]
         return (x + w - cw, y, cw, h), (edit.ZOOM_W, even(h * edit.ZOOM_W / cw))
+    if kind == "crop":
+        # a part of the window, given in points of the window: (x, y, w, h)
+        x, y, w, h = (v * scale for v in shot["rect"])
+        return (x, y, w, h), (shot["width"], even(h * shot["width"] / w))
     if kind == "window":
         return (0, 0, meta["width"], meta["height"]), (shot["width"], even(meta["height"] * shot["width"] / meta["width"]))
     raise ValueError(kind)
