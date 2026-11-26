@@ -20,6 +20,11 @@
     #card .row > #brand {
       display: flex;
     }
+    /* room in the name's row for the descender of its q (the rows below keep their places) */
+    #card .row:nth-child(2) {
+      padding-bottom: 12px;
+      margin-bottom: -12px;
+    }
     #brand {
       height: 56px;
       display: flex;

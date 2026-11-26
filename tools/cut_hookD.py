@@ -147,7 +147,15 @@ class Shot:
             T = lambda n: 6.25 * (n - seven) + 0.125
             n_anchor = take_frame
             if spec.get("track") is not None:
-                n_anchor = min(take_frame, self.first + round((spec["track"] - spec["start"]) * edit.FPS))
+                # held still from `track` on; with `settle`, it slows to the hold over that many
+                # seconds either side (an even deceleration landing on the same framing)
+                tr = self.first + (spec["track"] - spec["start"]) * edit.FPS
+                d = spec.get("settle", 0.0) * edit.FPS
+                if d and tr - d < take_frame < tr + d:
+                    u = take_frame - (tr - d)
+                    n_anchor = (tr - d) + u - u * u / (4 * d)
+                else:
+                    n_anchor = min(take_frame, tr)
             lag = math.floor(T(take_frame)) - T(n_anchor)                # columns the content has moved on since
             right = plot.now_x - plot.colw - lag * plot.colw - spec.get("back", 0.0) * plot.pt_per_s * plot.s
             x0, y0 = right - w, top

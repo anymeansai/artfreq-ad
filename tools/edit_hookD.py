@@ -30,7 +30,7 @@ SHOTS = [
     # 1 - 2: moon and waves at 128 lines, a punch on the 1.0 kick as the moon starts printing.
     dict(name="s2-moon", start=1.0, dur=1.0, **W, zoom=[(1.0, 1.15, "linear"), (1.6, 1.0, "out")], origin=(1080, 560)),
     # 2 - 3: moon and waves closer (1.3x), held still once drawn (128 lines; the knob goes to 256).
-    dict(name="s3-close", start=2.0, dur=1.0, **C, track=2.25, zoom=[(2.0, 1.0, "linear"), (3.0, 1.05, "inout")], origin=(540, 560)),
+    dict(name="s3-close", start=2.0, dur=1.0, **C, track=2.25, settle=0.25, zoom=[(2.0, 1.0, "linear"), (3.0, 1.05, "inout")], origin=(540, 560)),
     # 3 - 5: the galaxy at 256 lines, easing out to the wide frame so the cut at 5 continues it.
     dict(name="s4-galaxy", start=3.0, dur=2.0, **W, zoom=[(3.0, 1.06, "linear"), (5.0, 1.0, "inout")], origin=(700, 650)),
     # 5 - 6.5: the comet at 512 lines, a slow push.
@@ -48,7 +48,7 @@ SHOTS = [
     # 11 - 12.25: the galaxy at 1024, while it plays.
     dict(name="s11-galaxy", start=11.0, dur=1.25, **W),
     # 12.25 - 13: the window: the live view's newest seconds and the layer list with the pictures.
-    dict(name="s10-ui", cam="ui", start=12.25, dur=0.75, rect=(0, 0, 2240, 1784), out=(1080, 860),
+    dict(name="s10-ui", cam="ui", start=12.25, dur=0.75, rect=(24, 0, 2240, 1765), out=(1080, 860),
          zoom=[(12.25, 1.0, "linear"), (13.0, 1.03, "inout")], origin=(540, 430)),
     # 13 - 16: under the end card (459 Hz - 6.9 kHz, the lower 1170 px of the page): the comet
     # rises, a beat of sky, the planet comes round again.
@@ -61,7 +61,7 @@ SOUND = [
     dict(take="d-orbit", mark="ad0", offset=0, at=0.0, seconds=16.0, gain=0.0, fade_in_ms=3.0, tail_ms=0.0, out_ms=3.0,
          # the stars' sparkle up in the gaps of the first bars, the moon a little down so the drop
          # is the loudest part, the galaxy (Outline) up, ending on the grid before the next star
-         ride=[(0.55, 0.97, 8.0), (0.97, 2.25, -4.0), (2.28, 2.92, 8.0), (2.95, 4.33, 12.0), (7.0, 8.55, 2.0),
+         ride=[(0.55, 0.97, 8.0), (0.97, 2.25, -4.0), (2.28, 2.92, 8.0), (2.95, 4.33, 12.0), (7.0, 8.55, 3.5),
                (10.95, 12.33, 12.0)]),
 ]
 
@@ -71,15 +71,17 @@ DRUMS = None
 def _bed():
     """The drums under it (made in mix_audio.py from sines and noise), section by section."""
     ev = [(0.0, "kick", -3.0), (0.0, "sub", -8.0)]                       # the hook: one hit ...
-    ev += [(0.5, "clap", -8.0), (0.75, "open", -14.0), (0.875, "hat", -12.0)]   # ... and a pickup
+    ev += [(0.5, "clap", -8.0), (0.75, "open", -14.0), (0.75, "kick", -6.0), (0.75, "clap", -8.0),
+           (0.875, "clap", -6.0)]                                          # ... and a pickup
     ev += [(1.0, "kick", -3.0), (2.0, "kick", -3.0), (2.0, "clap", -6.0)]       # half time
     ev += [(t, "hat", -16.0) for t in (1.25, 1.75, 2.25, 2.75)]
-    ev += [(2.5, "clap", -14.0), (2.625, "clap", -12.0), (2.75, "clap", -10.0), (2.875, "clap", -8.0)]
+    ev += [(2.5, "clap", -10.0), (2.625, "clap", -8.0), (2.75, "clap", -6.0), (2.875, "clap", -4.0), (2.75, "kick", -6.0)]
     for b in range(4):                                                   # 3 - 5: four on the floor
         t = 3.0 + 0.5 * b
         ev += [(t, "kick", -3.0), (t + 0.25, "open", -17.0)]
         if b % 2:
             ev.append((t, "clap", -4.0))
+    ev += [(4.75, "kick", -9.0), (5.25, "kick", -9.0)]                   # pushes into the build
     for b in range(3):                                                   # 5 - 6.5: the build
         ev.append((5.0 + 0.5 * b, "kick", -3.0))
     roll = [5.0 + 0.25 * i for i in range(3)] + [5.75 + 0.125 * i for i in range(6)]

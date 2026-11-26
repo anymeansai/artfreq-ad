@@ -14,7 +14,8 @@
     }
     .copy .l {
       display: block;
-      height: 64px;
+      height: 68px;          /* the descenders' room; the lines stay 64 px apart */
+      margin-bottom: -4px;
       overflow: hidden;
     }
     .copy .l span {
@@ -46,7 +47,7 @@
     // shows before its turn) and leaves upwards before the next words.
     tl.set("#c4 .l span", { yPercent: 110 }, 8.5);
     tl.to("#c4 .l span", { ...IN, stagger: 0.3 }, 8.5);
-    tl.to("#c4 .l span", { ...OUT, stagger: 0.03 }, 9.7);
+    tl.to("#c4 .l span", { ...OUT, stagger: 0.03 }, 9.67);
     tl.set("#c5 .l span", { yPercent: 110 }, 11.05);
     tl.to("#c5 .l span", { ...IN, stagger: 0.08 }, 11.05);
     tl.to("#c5 .l span", { ...OUT, stagger: 0.03 }, 12.77);
