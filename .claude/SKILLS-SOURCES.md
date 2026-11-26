@@ -77,6 +77,22 @@ To update one, copy its folder again from the repository at a newer commit.
 | `threejs-shaders` | [CloudAI-X/threejs-skills](https://github.com/CloudAI-X/threejs-skills) | 0e18186 | MIT |
 | `threejs-textures` | [CloudAI-X/threejs-skills](https://github.com/CloudAI-X/threejs-skills) | 0e18186 | MIT |
 
+| `explainroo` | [vincentsch/explainroo](https://github.com/vincentsch/explainroo) | 195f918 | MIT |
+| `remotion-best-practices` | [remotion-dev/skills](https://github.com/remotion-dev/skills) | a3f4098 | no licence file (published by Remotion to be installed) |
+| `remotion-captions` | [remotion-dev/skills](https://github.com/remotion-dev/skills) | a3f4098 | no licence file (published by Remotion to be installed) |
+| `remotion-create` | [remotion-dev/skills](https://github.com/remotion-dev/skills) | a3f4098 | no licence file (published by Remotion to be installed) |
+| `remotion-docs` | [remotion-dev/skills](https://github.com/remotion-dev/skills) | a3f4098 | no licence file (published by Remotion to be installed) |
+| `remotion-elements` | [remotion-dev/skills](https://github.com/remotion-dev/skills) | a3f4098 | no licence file (published by Remotion to be installed) |
+| `remotion-interactivity` | [remotion-dev/skills](https://github.com/remotion-dev/skills) | a3f4098 | no licence file (published by Remotion to be installed) |
+| `remotion-license` | [remotion-dev/skills](https://github.com/remotion-dev/skills) | a3f4098 | no licence file (published by Remotion to be installed) |
+| `remotion-maps` | [remotion-dev/skills](https://github.com/remotion-dev/skills) | a3f4098 | no licence file (published by Remotion to be installed) |
+| `remotion-markup` | [remotion-dev/skills](https://github.com/remotion-dev/skills) | a3f4098 | no licence file (published by Remotion to be installed) |
+| `remotion-multimedia` | [remotion-dev/skills](https://github.com/remotion-dev/skills) | a3f4098 | no licence file (published by Remotion to be installed) |
+| `remotion-render` | [remotion-dev/skills](https://github.com/remotion-dev/skills) | a3f4098 | no licence file (published by Remotion to be installed) |
+| `remotion-saas` | [remotion-dev/skills](https://github.com/remotion-dev/skills) | a3f4098 | no licence file (published by Remotion to be installed) |
+| `remotion-studio` | [remotion-dev/skills](https://github.com/remotion-dev/skills) | a3f4098 | no licence file (published by Remotion to be installed) |
+| `remotion-upgrade` | [remotion-dev/skills](https://github.com/remotion-dev/skills) | a3f4098 | no licence file (published by Remotion to be installed) |
+
 ## Notes
 
 - The motion skills are the 19 packs listed in [iart-ai/motion-skills](https://github.com/iart-ai/motion-skills),
@@ -90,4 +106,14 @@ To update one, copy its folder again from the repository at a newer commit.
   templates load Google Fonts or cdnjs. No skill sends usage data or installs anything by itself.
 - Several iart-ai reference files end with a "Built by iart.ai" link; that is promotional text only.
 - [zhuyansen/awesome-claude-video-skills](https://github.com/zhuyansen/awesome-claude-video-skills)
-  is a curated list of video-skill repositories and contains no skills, so nothing was installed from it.
+  is a curated list of video-skill repositories and contains no skills. Its top three picks were
+  considered: explainroo and Remotion's own skills are installed; onetake
+  ([feitangyuan/onetake](https://github.com/feitangyuan/onetake)) is not, because its licence
+  (PolyForm Noncommercial 1.0.0) allows noncommercial use only, and this repository makes an ad.
+- `explainroo` runs the explainroo command with `npx --yes explainroo`, which downloads it from npm
+  the first time. Its voice and rendering run locally; paid services (OpenRouter, ElevenLabs,
+  Cartesia, Blotato, YouTube posting) are used only with your own keys and only when asked.
+- Remotion's skills are for building videos with Remotion, which has its own licence: free for
+  individuals and companies of up to 3 people, a company licence beyond that (see the
+  `remotion-license` skill). Some Remotion skill folders contain nested copies of other Remotion
+  skills; they are kept as Remotion ships them.
