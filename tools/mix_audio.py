@@ -90,8 +90,8 @@ def kick():
     hz = 55.0 + 160.0 * np.exp(-t / 0.030)                      # the pitch drops into the thump
     body = np.sin(2.0 * np.pi * np.cumsum(hz) / SR) * np.exp(-t / 0.13)
     knock_hz = 220.0 + 500.0 * np.exp(-t / 0.012)               # the part a phone speaker plays
-    knock = np.sin(2.0 * np.pi * np.cumsum(knock_hz) / SR) * np.exp(-t / 0.040) * 0.9
-    click = np.sin(2.0 * np.pi * 1800.0 * t) * np.exp(-t / 0.008)
+    knock = np.sin(2.0 * np.pi * np.cumsum(knock_hz) / SR) * np.exp(-t / 0.040) * getattr(edit, "KICK_KNOCK", 0.9)
+    click = np.sin(2.0 * np.pi * 1800.0 * t) * np.exp(-t / 0.008) * getattr(edit, "KICK_CLICK", 1.0)
     out = np.tanh(1.6 * (body + knock + click)) * np.minimum(1.0, t / 0.001)
     out[-480:] *= np.linspace(1.0, 0.0, 480)
     return out
@@ -106,7 +106,8 @@ def clap(rng):
         envelope[later] = np.maximum(envelope[later], level * np.exp(-(t[later] - start) / 0.007))
     tail = t >= 0.023
     envelope[tail] = np.maximum(envelope[tail], 0.8 * np.exp(-(t[tail] - 0.023) / 0.110))
-    return shaped_noise(rng, n, 700.0, 6000.0) * envelope
+    low, high = getattr(edit, "CLAP_BAND", (700.0, 6000.0))
+    return shaped_noise(rng, n, low, high) * envelope
 
 
 def hat(rng, decay):

@@ -17,6 +17,9 @@
     #card .row > * {
       display: block;
     }
+    #card .row > #brand {
+      display: flex;
+    }
     #brand {
       height: 56px;
       display: flex;
@@ -74,14 +77,15 @@
       <div class="row"><div id="brand"><img src="assets/img/anymeans-lockup.svg" alt="AnyMeans" /><span>Audio</span></div></div>
       <div class="row"><span id="name">ArtFreq</span></div>
       <div class="row"><span id="line">Draw in sound.</span></div>
-      <div class="row"><span id="url">anymeansaudio.com</span></div>
-      <div class="row"><span id="formats">VST3 + AU · Mac + Windows</span></div>
+      <div class="row"><span id="url">Get it at anymeansaudio.com</span></div>
+      <div class="row"><span id="formats">Instrument · VST3 + AU · Mac + Windows</span></div>
     </div>
   </div>
   <script>
     const tl = gsap.timeline({ paused: true });
     // Each row up from under itself, 60 ms apart, all still by 0.5 s.
-    tl.fromTo("#card .row > *", { yPercent: 105 }, { yPercent: 0, duration: 0.42, ease: "expo.out", stagger: 0.06, immediateRender: false }, 0);
+    tl.set("#card .row > *", { yPercent: 105 }, 0);
+    tl.to("#card .row > *", { yPercent: 0, duration: 0.42, ease: "expo.out", stagger: 0.06, immediateRender: false }, 0);
     window.__timelines["close"] = tl;
   </script>
 </template>

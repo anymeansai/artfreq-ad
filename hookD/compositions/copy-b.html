@@ -9,7 +9,7 @@
     .copy {
       position: absolute;
       left: 120px;
-      top: 1116px;
+      top: 1108px;
       width: 840px;
     }
     .copy .l {
@@ -29,22 +29,26 @@
     }
   </style>
   <div id="root" data-composition-id="copy-b" data-width="1080" data-height="1920">
-    <div id="c4" class="clip copy" data-start="9.05" data-duration="1.43" data-track-index="1">
-      <div class="l"><span>Hundreds of sines.</span></div>
-      <div class="l"><span>One picture.</span></div>
+    <div id="c4" class="clip copy" data-start="8.5" data-duration="1.4" data-track-index="1">
+      <div class="l"><span>Same planet.</span></div>
+      <div class="l"><span>16× the lines.</span></div>
     </div>
     <div id="c5" class="clip copy" data-start="11.05" data-duration="1.92" data-track-index="1">
-      <div class="l"><span>Any picture,</span></div>
-      <div class="l"><span>played as sound.</span></div>
+      <div class="l"><span>Type it, draw it,</span></div>
+      <div class="l"><span>drop in a picture.</span></div>
     </div>
   </div>
   <script>
     const tl = gsap.timeline({ paused: true });
     const IN = { yPercent: 0, duration: 0.45, ease: "expo.out", stagger: 0.08, immediateRender: false };
     const OUT = { yPercent: -110, duration: 0.2, ease: "power3.in", immediateRender: false };
-    tl.fromTo("#c4 .l span", { yPercent: 110 }, { ...IN, stagger: 0.35 }, 9.05);
-    tl.to("#c4 .l span", { ...OUT, stagger: 0.03 }, 10.28);
-    tl.fromTo("#c5 .l span", { yPercent: 110 }, IN, 11.05);
+    // Every line rises from under its mask (set below it first, so a later line of a pair never
+    // shows before its turn) and leaves upwards before the next words.
+    tl.set("#c4 .l span", { yPercent: 110 }, 8.5);
+    tl.to("#c4 .l span", { ...IN, stagger: 0.3 }, 8.5);
+    tl.to("#c4 .l span", { ...OUT, stagger: 0.03 }, 9.7);
+    tl.set("#c5 .l span", { yPercent: 110 }, 11.05);
+    tl.to("#c5 .l span", { ...IN, stagger: 0.08 }, 11.05);
     tl.to("#c5 .l span", { ...OUT, stagger: 0.03 }, 12.77);
     window.__timelines["copy-b"] = tl;
   </script>

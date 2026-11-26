@@ -58,7 +58,7 @@
       #s6 {
         position: absolute;
         left: 0;
-        top: 40px;
+        top: 200px;
         width: 1080px;
         height: 1080px;
         display: block;
@@ -70,6 +70,8 @@
         width: 1080px;
         height: 860px;
         display: block;
+        -webkit-mask-image: linear-gradient(to top, transparent 0, #000 120px);
+        mask-image: linear-gradient(to top, transparent 0, #000 120px);
       }
       #s12 {
         position: absolute;
@@ -96,21 +98,22 @@
     <div id="root" data-composition-id="main" data-start="0" data-duration="16" data-width="1080" data-height="1920" data-fps="30">
       <video id="s1" class="clip full" src="assets/video/s1-hook.mp4" data-start="0" data-duration="1" data-track-index="0" muted playsinline></video>
       <video id="s2" class="clip full" src="assets/video/s2-moon.mp4" data-start="1" data-duration="1" data-track-index="0" muted playsinline></video>
-      <video id="s3" class="clip full" src="assets/video/s3-macro.mp4" data-start="2" data-duration="1" data-track-index="0" muted playsinline></video>
+      <video id="s3" class="clip full" src="assets/video/s3-close.mp4" data-start="2" data-duration="1" data-track-index="0" muted playsinline></video>
       <video id="s4" class="clip full" src="assets/video/s4-galaxy.mp4" data-start="3" data-duration="2" data-track-index="0" muted playsinline></video>
       <video id="s5" class="clip full" src="assets/video/s5-comet.mp4" data-start="5" data-duration="1.5" data-track-index="0" muted playsinline></video>
       <div id="plate" class="clip" data-start="6.5" data-duration="0.5" data-track-index="1"></div>
       <video id="s6" class="clip" src="assets/video/s6-knob.mp4" data-start="6.5" data-duration="0.5" data-track-index="0" muted playsinline></video>
       <video id="s7" class="clip full" src="assets/video/s7-drop.mp4" data-start="7" data-duration="2" data-track-index="0" muted playsinline></video>
       <video id="s8" class="clip full" src="assets/video/s8-moon.mp4" data-start="9" data-duration="1.5" data-track-index="0" muted playsinline></video>
-      <video id="s9" class="clip full" src="assets/video/s9-macro.mp4" data-start="10.5" data-duration="0.5" data-track-index="0" muted playsinline></video>
-      <video id="s10" class="clip" src="assets/video/s10-ui.mp4" data-start="11" data-duration="1" data-track-index="0" muted playsinline></video>
-      <video id="s11" class="clip full" src="assets/video/s11-galaxy.mp4" data-start="12" data-duration="1" data-track-index="0" muted playsinline></video>
+      <video id="s9" class="clip full" src="assets/video/s9-close.mp4" data-start="10.5" data-duration="0.5" data-track-index="0" muted playsinline></video>
+      <video id="s10" class="clip" src="assets/video/s10-ui.mp4" data-start="12.25" data-duration="0.75" data-track-index="0" muted playsinline></video>
+      <video id="s11" class="clip full" src="assets/video/s11-galaxy.mp4" data-start="11" data-duration="1.25" data-track-index="0" muted playsinline></video>
       <video id="s12" class="clip" src="assets/video/s12-end.mp4" data-start="13" data-duration="3" data-track-index="0" muted playsinline></video>
 
       <div id="readout-a" class="scene" data-composition-id="readout-a" data-composition-src="compositions/readout-a.html" data-start="0" data-duration="6.5" data-track-index="2" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
       <div id="readout-b" class="scene" data-composition-id="readout-b" data-composition-src="compositions/readout-b.html" data-start="0" data-duration="13" data-track-index="5" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
-      <div id="copy-a" class="scene" data-composition-id="copy-a" data-composition-src="compositions/copy-a.html" data-start="0" data-duration="6.5" data-track-index="6" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="copy-a" class="scene" data-composition-id="copy-a" data-composition-src="compositions/copy-a.html" data-start="0" data-duration="3" data-track-index="6" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="copy-a2" class="scene" data-composition-id="copy-a2" data-composition-src="compositions/copy-a2.html" data-start="0" data-duration="6.5" data-track-index="8" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
       <div id="copy-b" class="scene" data-composition-id="copy-b" data-composition-src="compositions/copy-b.html" data-start="0" data-duration="13" data-track-index="7" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
       <div id="close" class="scene" data-composition-id="close" data-composition-src="compositions/close.html" data-start="13" data-duration="3" data-track-index="3" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
 

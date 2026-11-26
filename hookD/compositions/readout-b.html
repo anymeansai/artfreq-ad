@@ -9,7 +9,7 @@
     .hud {
       position: absolute;
       left: 120px;
-      top: 1074px;
+      top: 1070px;
       height: 34px;
       font-family: "DM Mono", monospace;
       font-weight: 500;
@@ -39,18 +39,45 @@
     .hud .n.later {
       opacity: 0;
     }
-    .hud .drop {
-      display: inline-block;
+    /* The drop: the count itself, big, for a beat and a half. */
+    #hud-big {
+      position: absolute;
+      left: 120px;
+      top: 1062px;
+      height: 140px;
+      white-space: nowrap;
+    }
+    #hud-big .in {
+      display: flex;
+      align-items: baseline;
+      font-family: "DM Mono", monospace;
+      font-weight: 500;
+    }
+    #hud-big .count {
+      font-size: 132px;
+      line-height: 140px;
+      letter-spacing: -0.02em;
+      color: #fce7a0;
+    }
+    #hud-big .unit {
+      margin-left: 18px;
+      font-size: 36px;
+      letter-spacing: 0.06em;
+      color: rgba(244, 245, 248, 0.62);
     }
   </style>
   <div id="root" data-composition-id="readout-b" data-width="1080" data-height="1920">
-    <div id="hud-drop" class="clip hud" data-start="7" data-duration="3.5" data-track-index="0"><b>ARTFREQ ·</b> <span class="drop">1024 LINES</span></div>
+    <div id="hud-big" class="clip" data-start="7" data-duration="1.5" data-track-index="0"><div class="in"><span class="count">1024</span><span class="unit">LINES</span></div></div>
+    <div id="hud-drop" class="clip hud" data-start="8.45" data-duration="2.55" data-track-index="0"><b>ARTFREQ ·</b> 1024 LINES</div>
     <div id="hud-drawing" class="clip hud" data-start="11" data-duration="2" data-track-index="0"><b>ARTFREQ ·</b> 1 DRAWING · 4 BARS</div>
   </div>
   <script>
     const tl = gsap.timeline({ paused: true });
-    // The drop: the read-out lands with the planet.
-    tl.fromTo(".hud .drop", { scale: 1.6, transformOrigin: "0% 70%", color: "#ffffff" }, { scale: 1, color: "#fce7a0", duration: 0.6, ease: "expo.out", immediateRender: false }, 7);
+    // The drop: the count lands with the planet (the knob's value from this picture on), then
+    // goes up out of its row before the small read-out comes back.
+    tl.fromTo("#hud-big .in", { scale: 1.45, transformOrigin: "0% 100%" }, { scale: 1, duration: 0.6, ease: "expo.out", immediateRender: false }, 7);
+    tl.fromTo("#hud-big .count", { color: "#ffffff" }, { color: "#fce7a0", duration: 0.6, ease: "power2.out", immediateRender: false }, 7);
+    tl.to("#hud-big .in", { opacity: 0, y: -24, duration: 0.2, ease: "power3.in", immediateRender: false }, 8.3);
     window.__timelines["readout-b"] = tl;
   </script>
 </template>
