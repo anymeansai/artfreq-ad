@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ArtFreq ad, hook C: This beat is talking (Instagram Reel, 9:16, 20 s)</title>
+    <link rel="icon" href="data:," />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-weight: 100 900;
+        font-display: block;
+        src: url("assets/fonts/inter-latin.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "DM Mono";
+        font-style: normal;
+        font-weight: 500;
+        font-display: block;
+        src: url("assets/fonts/dm-mono-500.woff2") format("woff2");
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #0b0d12;
+        -webkit-font-smoothing: antialiased;
+      }
+      #root {
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #0b0d12;
+        color: #f4f5f8;
+        font-family: "Inter", sans-serif;
+      }
+
+      /* ArtFreq FX's live view (tools/adreel, take c-wf): 268 Hz - 13.4 kHz and the newest 2.3 s,
+         1920 x 1080, turned a quarter right so it fills the phone with time rising up the screen.
+         The words in it are the drawing, played by the plug-in and analysed as they sound. */
+      #wf-wrap {
+        position: absolute;
+        left: -420px;
+        top: 420px;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        z-index: 2;
+      }
+      #wf {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1920px;
+        height: 1080px;
+        display: block;
+      }
+
+      /* The whole window, as it is, after the turn back */
+      #win {
+        position: absolute;
+        left: 0;
+        top: 810px;
+        width: 1080px;
+        height: 660px;
+        overflow: hidden;
+        opacity: 0;
+        z-index: 1;
+      }
+      #win::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-top: 2px solid rgba(255, 255, 255, 0.12);
+        border-bottom: 2px solid rgba(255, 255, 255, 0.12);
+      }
+      #win-v {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1080px;
+        height: 660px;
+        display: block;
+      }
+      .scene {
+        z-index: 10;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="20" data-width="1080" data-height="1920" data-fps="30">
+      <div id="wf-wrap" data-layout-allow-overflow>
+        <video id="wf" class="clip" src="assets/video/wf.mp4" data-start="0" data-duration="15.9" data-track-index="0" muted playsinline></video>
+      </div>
+      <div id="win" data-layout-allow-overflow>
+        <video id="win-v" class="clip" src="assets/video/win.mp4" data-start="15" data-duration="5" data-track-index="1" muted playsinline></video>
+      </div>
+
+      <div id="close" class="scene" data-composition-id="close" data-composition-src="compositions/close.html" data-start="15.8" data-duration="4.2" data-track-index="2" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+
+      <!-- the sound: the loop as it came out of ArtFreq FX in that take (tools/mix_audio.py) -->
+      <audio id="mix" src="assets/audio/ad-mix.wav" data-start="0" data-duration="20" data-volume="1" data-track-index="3"></audio>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      // Turned a quarter right for the first 15 s.
+      gsap.set("#wf-wrap", { rotation: 90, transformOrigin: "50% 50%" });
+      const tl = gsap.timeline({ paused: true });
+
+      // 15 s: it turns back and shrinks onto the same place in the plug-in's window, which comes
+      // up around it; then it goes, and the window is all there is. The numbers put the crop
+      // (window points 396.0, 109.5, 302.0 x 151.8, from the take's live-plot rect, c-wf.json)
+      // where the window shows it: 1.5 px a point, window top 810 px.
+      tl.fromTo(
+        "#wf-wrap",
+        { x: 0, y: 0, rotation: 90, scaleX: 1, scaleY: 1 },
+        { x: 280.50, y: 128.06, rotation: 0, scaleX: 0.23594, scaleY: 0.21078, duration: 0.8, ease: "power3.inOut", immediateRender: false },
+        15,
+      );
+      tl.fromTo("#win", { opacity: 0 }, { opacity: 1, duration: 0.35, ease: "none", immediateRender: false }, 15.45);
+      tl.fromTo("#wf-wrap", { opacity: 1 }, { opacity: 0, duration: 0.1, ease: "none", immediateRender: false }, 15.8);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

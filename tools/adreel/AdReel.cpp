@@ -960,6 +960,84 @@ void filmHookBLogo (const juce::File& outputDir)
     filmUntil (*take, 12.2);
 }
 
+//==============================================================================
+// Ad C, "This beat is talking" (hookC/). One take of ArtFreq FX in Carve + Draw on the loop,
+// filmed at --scale 7: the ad shows its live view turned a quarter right, so time runs up the
+// screen. The drawing passes once every 2 bars (4 s) and is a different picture each pass: the
+// words of the ad, laid out to read upright once turned (tools/make_strips_hookC.py), then, after
+// the reveal, the native text "ArtFreq". Mark "ad0" is 1.5 s into the first word pass.
+
+void filmHookC (const juce::File& outputDir)
+{
+    constexpr int passFrames = 4 * framesPerSecond;
+    constexpr int preRollFrames = passFrames;                    // one pass of the loop as it is
+    constexpr int ad0Offset = preRollFrames + 3 * framesPerSecond / 2;
+    constexpr double adSeconds = 20.2;
+
+    Take take ("c-wf", true, [] (ArtFreqProcessor& p)
+    {
+        setParameter (p, params::id::length, 3.0f);    // 2 bars: 4 s at 120 BPM (the live view shows 5 s)
+        setParameter (p, params::id::repeat, 1.0f);
+        setParameter (p, params::id::mode, static_cast<float> (static_cast<int> (EffectMode::carveDraw)));
+        setParameter (p, params::id::depth, -80.0f);
+        setParameter (p, params::id::density, 512.0f);
+        setView (p, -20.0f);
+    }, outputDir);
+
+    take.input = makeSong ((ad0Offset + juce::roundToInt (adSeconds * framesPerSecond)) / static_cast<double> (framesPerSecond) + 2.0);
+    take.showLive();
+    take.noteRects ("live/");
+
+    const auto latency = take.processor->getLatencySamples();
+    const auto leadFrames = (latency + samplesPerFrame - 1) / samplesPerFrame;
+    take.pressPlay (leadFrames * samplesPerFrame - latency);
+    take.film (leadFrames);
+    take.mark ("sound");
+    const auto sound = take.marks["sound"];
+    take.marks["ad0"] = sound + ad0Offset;
+
+    // The drawings, one a pass: the four word pictures, then "ArtFreq" as text, as it comes.
+    std::vector<ArtDocument> drawings;
+
+    for (int i = 1; i <= 4; ++i)
+    {
+        const auto file = outputDir.getChildFile ("c-p" + juce::String (i) + ".png");
+        const auto image = juce::ImageFileFormat::loadFrom (file);
+        check (image.isValid(), "c-wf: " + file.getFileName());
+        ArtDocument d;
+        auto o = ArtDocument::makeImageObject (prepareImportedImage (image), 300.0f, 12000.0f);
+        o.fileName = file.getFileName();
+        o.startTime = 0.0f;
+        o.endTime = 1.0f;
+        d.objects.push_back (o);
+        drawings.push_back (d);
+    }
+
+    ArtDocument name;
+    name.objects.push_back (makeWord ("ArtFreq", 300.0f, 12000.0f, 0.08f, 0.92f));
+    drawings.push_back (name);
+
+    // A drawing goes in 4 pictures before its pass begins (the pass before has nothing drawn in
+    // its last beat), so the plan is ready when the pass starts.
+    for (size_t k = 0; k < drawings.size(); ++k)
+    {
+        const auto passStart = sound + preRollFrames + static_cast<int> (k) * passFrames;
+
+        while (take.frames < passStart - 4)
+            take.film();
+
+        // No message loop here: the live view's own timer would run more than 0.3 s after its
+        // last columns (a frame at this scale takes that long) and scroll silence into the view.
+        // The window catches up in the next picture's pump, right after it takes its columns.
+        take.processor->setDocument (drawings[k]);
+        take.processor->rebuildPlanIfNeeded();
+        take.mark (("pass" + juce::String (static_cast<int> (k) + 1)).toRawUTF8());
+    }
+
+    while (take.frames < take.marks["ad0"] + juce::roundToInt (adSeconds * framesPerSecond))
+        take.film();
+}
+
 } // namespace
 
 int main (int argc, char* argv[])
@@ -1024,6 +1102,7 @@ int main (int argc, char* argv[])
     if (wanted.contains ("b-hook"))   filmHookBHook (outputDir);
     if (wanted.contains ("b-drop"))   filmHookBDrop (outputDir, logoFile);
     if (wanted.contains ("b-logo"))   filmHookBLogo (outputDir);
+    if (wanted.contains ("c-wf"))     filmHookC (outputDir);
 
     pump (50);
     licensetest::removeRunnerLicensing();

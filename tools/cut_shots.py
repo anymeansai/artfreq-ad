@@ -56,6 +56,17 @@ def framing(shot, meta):
         x, y, w, h = rect("live-plot")
         cw = w * shot["seconds"] / meta["liveSeconds"]
         return (x + w - cw, y, cw, h), (edit.ZOOM_W, even(h * edit.ZOOM_W / cw))
+    if kind == "plotcrop":
+        # the newest part of the live view between two frequencies (the plot runs 20 Hz - 20 kHz
+        # on a log scale), as many seconds as keep its pixels square at the output size
+        import math
+        x, y, w, h = rect("live-plot")
+        ow, oh = shot["out"]
+        y_of = lambda f: y + h * math.log10(20000.0 / f) / 3.0
+        y0, y1 = y_of(shot["f_hi"]), y_of(shot["f_lo"])
+        # `seconds` given: that much time, scaled to fit (time and frequency then scale apart)
+        cw = w * shot["seconds"] / meta["liveSeconds"] if "seconds" in shot else (y1 - y0) * ow / oh
+        return (x + w - cw, y0, cw, y1 - y0), (ow, oh)
     if kind == "crop":
         # a part of the window, given in points of the window: (x, y, w, h)
         x, y, w, h = (v * scale for v in shot["rect"])

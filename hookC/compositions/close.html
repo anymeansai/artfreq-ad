@@ -1,0 +1,103 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    /* "AnyMeans Audio" as the site's header sets it: the lockup, then Audio. */
+    #ce-brand {
+      position: absolute;
+      left: 106px;
+      top: 300px;
+      height: 62px;
+      display: flex;
+      align-items: center;
+    }
+    #ce-brand img {
+      display: block;
+      height: 62px;
+      width: auto;
+    }
+    #ce-brand span {
+      margin-left: -2px;
+      font-family: "Inter", sans-serif;
+      font-weight: 600;
+      font-size: 33px;
+      line-height: 1;
+      letter-spacing: -0.012em;
+      color: #e8ebf2;
+      white-space: nowrap;
+    }
+    #ce-card {
+      position: absolute;
+      left: 120px;
+      top: 380px;
+      width: max-content;
+      font-family: "Inter", sans-serif;
+      color: #f4f5f8;
+    }
+    #ce-card span {
+      display: block;
+      white-space: nowrap;
+    }
+    #ce-name {
+      font-weight: 650;
+      font-size: 148px;
+      line-height: 1;
+      letter-spacing: -0.05em;
+    }
+    #ce-line {
+      margin-top: 6px;
+      font-weight: 600;
+      font-size: 84px;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+    #ce-url {
+      margin-top: 30px;
+      font-family: "DM Mono", monospace;
+      font-weight: 500;
+      font-size: 48px;
+      line-height: 1;
+      letter-spacing: 0.01em;
+      color: #f9a13a; /* the one accent: the website */
+    }
+    #ce-formats {
+      margin-top: 22px;
+      font-weight: 500;
+      font-size: 38px;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      color: #c3c8d2;
+    }
+    #ce-pro {
+      margin-top: 14px;
+      font-family: "DM Mono", monospace;
+      font-weight: 500;
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      color: #9097a6;
+    }
+  </style>
+  <div id="root" data-composition-id="close" data-width="1080" data-height="1920">
+    <div id="ce-brand" class="clip" data-start="0" data-duration="4.2" data-track-index="0">
+      <img id="ce-lockup" src="assets/img/anymeans-lockup.svg" alt="AnyMeans" />
+      <span>Audio</span>
+    </div>
+    <div id="ce-card" class="clip" data-start="0" data-duration="4.2" data-track-index="1">
+      <span id="ce-name">ArtFreq</span>
+      <span id="ce-line">Draw in sound.</span>
+      <span id="ce-url">anymeansaudio.com</span>
+      <span id="ce-formats">VST3 + AU · Mac + Windows</span>
+      <span id="ce-pro">ArtFreq FX comes with ArtFreq Pro</span>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    tl.fromTo("#ce-name", { scale: 1.06, transformOrigin: "0% 60%" }, { scale: 1, duration: 0.3, ease: "expo.out" }, 0);
+    tl.fromTo(["#ce-formats", "#ce-pro"], { opacity: 0 }, { opacity: 1, duration: 0.15, ease: "none" }, 0.25);
+    window.__timelines["close"] = tl;
+  </script>
+</template>
