@@ -34,7 +34,7 @@ plug-in repository's test loop, with the name or logo carved into it (Carve, Dep
 | 4 - 8 s | "Type your name." (typed into the plug-in) / "Press play." (carved into the beat) | two steps: it looks easy because it is |
 | 8 - 12 s | "Or drop in your logo." (a logo file dropped on the canvas and dragged out, then carved) | a second use, and the picture feature |
 | 12 - 13.5 s | "Hide yours." | the call that answers the hook, addressed to the viewer |
-| 13.5 - 16 s | AnyMeans Audio, "ArtFreq", "Draw in sound.", "Link in bio · anymeansaudio.com", "VST3 + AU · Mac + Windows", "ArtFreq FX comes with ArtFreq Pro" | one action, and what it runs on |
+| 13.5 - 16 s | AnyMeans Audio, "ArtFreq", "Draw in sound.", "anymeansaudio.com", "VST3 + AU · Mac + Windows", "ArtFreq FX comes with ArtFreq Pro" | one action, and what it runs on |
 
 How it was made:
 
