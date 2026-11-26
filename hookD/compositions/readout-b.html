@@ -1,0 +1,56 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    /* The words sit under the drawing, in the band it leaves empty (about 1 kHz and below),
+       inside the apps' safe area. */
+    .hud {
+      position: absolute;
+      left: 120px;
+      top: 1074px;
+      height: 34px;
+      font-family: "DM Mono", monospace;
+      font-weight: 500;
+      font-size: 30px;
+      line-height: 34px;
+      letter-spacing: 0.06em;
+      color: #fce7a0;
+      white-space: nowrap;
+    }
+    .hud b {
+      font-weight: 500;
+      color: rgba(244, 245, 248, 0.62);
+    }
+    .hud .nums {
+      position: relative;
+      display: inline-block;
+      width: 220px;
+      height: 34px;
+      vertical-align: top;
+    }
+    .hud .n {
+      position: absolute;
+      left: 0;
+      top: 0;
+      white-space: nowrap;
+    }
+    .hud .n.later {
+      opacity: 0;
+    }
+    .hud .drop {
+      display: inline-block;
+    }
+  </style>
+  <div id="root" data-composition-id="readout-b" data-width="1080" data-height="1920">
+    <div id="hud-drop" class="clip hud" data-start="7" data-duration="3.5" data-track-index="0"><b>ARTFREQ ·</b> <span class="drop">1024 LINES</span></div>
+    <div id="hud-drawing" class="clip hud" data-start="11" data-duration="2" data-track-index="0"><b>ARTFREQ ·</b> 1 DRAWING · 4 BARS</div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    // The drop: the read-out lands with the planet.
+    tl.fromTo(".hud .drop", { scale: 1.6, transformOrigin: "0% 70%", color: "#ffffff" }, { scale: 1, color: "#fce7a0", duration: 0.6, ease: "expo.out", immediateRender: false }, 7);
+    window.__timelines["readout-b"] = tl;
+  </script>
+</template>

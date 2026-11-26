@@ -1,0 +1,87 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    #card {
+      position: absolute;
+      left: 120px;
+      top: 296px;
+      z-index: 20;
+    }
+    #card .row {
+      display: block;
+      overflow: hidden;
+    }
+    #card .row > * {
+      display: block;
+    }
+    #brand {
+      height: 56px;
+      display: flex;
+      align-items: center;
+    }
+    #brand img {
+      display: block;
+      height: 56px;
+      width: auto;
+    }
+    #brand span {
+      margin-left: -2px;
+      font-weight: 600;
+      font-size: 30px;
+      line-height: 1;
+      letter-spacing: -0.012em;
+      color: #e8ebf2;
+      white-space: nowrap;
+    }
+    #name {
+      margin-top: 18px;
+      font-weight: 650;
+      font-size: 150px;
+      line-height: 1.02;
+      letter-spacing: -0.05em;
+    }
+    #line {
+      margin-top: 4px;
+      font-weight: 600;
+      font-size: 72px;
+      line-height: 1.1;
+      letter-spacing: -0.035em;
+      color: #fce7a0;
+    }
+    #url {
+      margin-top: 30px;
+      font-family: "DM Mono", monospace;
+      font-weight: 500;
+      font-size: 44px;
+      line-height: 1.15;
+      letter-spacing: 0.01em;
+      color: #f9a13a; /* the one accent: the website */
+    }
+    #formats {
+      margin-top: 14px;
+      font-weight: 500;
+      font-size: 34px;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      color: #c3c8d2;
+    }
+  </style>
+  <div id="root" data-composition-id="close" data-width="1080" data-height="1920">
+    <div id="card" class="clip" data-start="0" data-duration="3" data-track-index="0">
+      <div class="row"><div id="brand"><img src="assets/img/anymeans-lockup.svg" alt="AnyMeans" /><span>Audio</span></div></div>
+      <div class="row"><span id="name">ArtFreq</span></div>
+      <div class="row"><span id="line">Draw in sound.</span></div>
+      <div class="row"><span id="url">anymeansaudio.com</span></div>
+      <div class="row"><span id="formats">VST3 + AU · Mac + Windows</span></div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    // Each row up from under itself, 60 ms apart, all still by 0.5 s.
+    tl.fromTo("#card .row > *", { yPercent: 105 }, { yPercent: 0, duration: 0.42, ease: "expo.out", stagger: 0.06, immediateRender: false }, 0);
+    window.__timelines["close"] = tl;
+  </script>
+</template>

@@ -73,6 +73,37 @@ words the plug-in plays rise up it as they sound: there is no text layer until t
 - `python3 tools/cut_shots.py <takes> edit_hookC`, `python3 tools/mix_audio.py <takes> edit_hookC`,
   `npm run render:hookC`.
 
+## Ad D: `ad-artfreq-hookD.mp4`, "Resolve" (Reels / TikTok)
+
+1080 x 1920, 16 s (8 bars at 120 BPM, so it loops in time), made in `hookD/`. The ArtFreq
+instrument, not FX: one take of its real editor playing one drawing of a night sky (a ringed
+planet, a moon over waves, a spiral galaxy in Outline mode, a comet, stars on the 16ths) over
+4 bars, Repeat on, in its Live view. Density is turned up on the footer's own knob between the
+pictures, so the same sky goes from 64 glowing lines to a solid picture at 1024.
+`ad-artfreq-hookD-cover.jpg` is the cover.
+
+| Time | On screen | Sound |
+| --- | --- | --- |
+| 0 - 1 s | the planet printing in as 64 lines; "Each glowing line / is a sine wave." | the planet's sines, one kick |
+| 1 - 3 s | moon and waves at 128 lines, then the moon up close | the moon, half-time kick |
+| 3 - 6.5 s | the galaxy at 256 ("Add more lines."), the comet at 512 ("More.") | the galaxy, the comet rising; four on the floor, a clap roll |
+| 6.5 - 7 s | the real Density knob turned to 1024 | silence (the drawing's empty last beat) |
+| 7 - 11 s | the same planet at 1024 lines, then moon and waves ("Hundreds of sines. / One picture."), the moon up close | the drop |
+| 11 - 13 s | the window: the live view and the layer list of pictures ("Any picture, / played as sound."), the galaxy | |
+| 13 - 16 s | AnyMeans Audio, "ArtFreq", "Draw in sound.", anymeansaudio.com, "VST3 + AU · Mac + Windows" over the live view | the comet; then the planet alone, into the loop |
+
+- The read-out ("ARTFREQ · 64 LINES") is the knob's own value at each picture, logged by the take
+  (`d-orbit-density.json` -> `hookD/assets/data/hud.json`).
+- `tools/make_pictures_hookD.py` draws the pictures (code, no photos, no faces). `tools/adreel`
+  films `--takes d-orbit --scale 2` with three cameras at once: the live view's plot (newest
+  3.3 s, 140 Hz - 12.4 kHz) at 14 px a point, part of the window at 4, the knob at 12.
+- `python3 tools/cut_hookD.py <takes>` cuts the shots: crops of the cameras with Lanczos at
+  sub-pixel boxes, the crop following the view's scroll by the column fraction it has not shown
+  yet (it steps 6, 6, 6, 7 columns a picture), or holding still on what was just drawn.
+- `python3 tools/mix_audio.py <takes> edit_hookD`: ArtFreq's output from the take, uncut, only its
+  level ridden (+12 dB on the Outline galaxy, which plays much quieter), and drums made from sines
+  and noise (`DRUM_EVENTS`). `npm run render:hookD`.
+
 ## How it is made
 
 ```

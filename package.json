@@ -7,7 +7,8 @@
     "check": "hyperframes check --no-cache",
     "render": "hyperframes render --fps 30 --quality delivery --crf 14 --keyframe-interval 2 --video-frame-format png --strict -o ad-artfreq-hookA.mp4",
     "render:hookB": "cd hookB && hyperframes render --fps 30 --quality delivery --crf 14 --keyframe-interval 2 --video-frame-format png --strict -o ../ad-artfreq-hookB.mp4",
-    "render:hookC": "cd hookC && hyperframes render --fps 30 --quality delivery --crf 14 --keyframe-interval 2 --video-frame-format png --strict -o ../ad-artfreq-hookC.mp4"
+    "render:hookC": "cd hookC && hyperframes render --fps 30 --quality delivery --crf 14 --keyframe-interval 2 --video-frame-format png --strict -o ../ad-artfreq-hookC.mp4",
+    "render:hookD": "cd hookD && hyperframes render --fps 30 --quality delivery --crf 14 --keyframe-interval 2 --video-frame-format png --strict -o ../ad-artfreq-hookD.mp4"
   },
   "repository": {
     "type": "git",

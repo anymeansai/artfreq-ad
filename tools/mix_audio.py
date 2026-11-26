@@ -115,6 +115,56 @@ def hat(rng, decay):
     return shaped_noise(rng, n, 5000.0, 14000.0) * np.exp(-t / decay) * np.minimum(1.0, t / 0.0005)
 
 
+def sub(rng=None):
+    """A sine sub drop under the kick: 55 Hz falling to 46 Hz, a slow decay."""
+    t = np.arange(int(0.9 * SR)) / SR
+    hz = 46.0 + 9.0 * np.exp(-t / 0.08)
+    out = np.sin(2.0 * np.pi * np.cumsum(hz) / SR) * np.exp(-t / 0.35) * np.minimum(1.0, t / 0.004)
+    out[-480:] *= np.linspace(1.0, 0.0, 480)
+    return out
+
+
+def crash(rng):
+    """Noise between 3 and 14 kHz with a long decay."""
+    n = int(1.6 * SR)
+    t = np.arange(n) / SR
+    out = shaped_noise(rng, n, 3000.0, 14000.0) * np.exp(-t / 0.45) * np.minimum(1.0, t / 0.001)
+    out[-960:] *= np.linspace(1.0, 0.0, 960)
+    return out
+
+
+def drum_events(events):
+    """Mono, on the ad's clock: (seconds, kind, dB) for kind in kick, clap, hat, open, sub, crash."""
+    rng = np.random.default_rng(20261126)
+    total = int(edit.AD_SECONDS * SR)
+    out = np.zeros(total)
+    sounds = {"kick": kick(), "clap": clap(rng), "hat": hat(rng, 0.030), "open": hat(rng, 0.070),
+              "sub": sub(), "crash": crash(rng)}
+    for at, kind, level in events:
+        sound = sounds[kind] * db(level)
+        i = int(round(at * SR))
+        j = min(total, i + len(sound))
+        if j > i:
+            piece = sound[: j - i].copy()
+            if j - i < len(sound):
+                piece[-min(240, j - i):] *= np.linspace(1.0, 0.0, min(240, j - i))
+            out[i:j] += piece
+    return out
+
+
+def ride(n, start, rides, ramp_ms=30.0):
+    """A gain curve (linear) for a cut of n samples starting at ad time `start`: (t0, t1, dB) are
+    stretches of ad time at another level, reached over `ramp_ms` on either side."""
+    t = start + np.arange(n) / SR
+    gain_db = np.zeros(n)
+    r = ramp_ms / 1000.0
+    for t0, t1, level in rides:
+        up = np.clip((t - (t0 - r)) / r, 0.0, 1.0)
+        down = np.clip(((t1 + r) - t) / r, 0.0, 1.0)
+        gain_db += level * np.minimum(up, down)
+    return db(gain_db)
+
+
 def drum_loop(start, end):
     """Mono, on the ad's clock: beats every half second, bars on even seconds."""
     rng = np.random.default_rng(20261124)
@@ -185,6 +235,8 @@ def main():
         n = int(round(cut["seconds"] * SR)) + tail
         clip = fade(audio[first:first + n], in_ms=cut.get("fade_in_ms", 3.0),
                     out_ms=cut.get("out_ms", cut.get("tail_ms", 8.0))) * db(cut["gain"])
+        if cut.get("ride"):
+            clip = clip * ride(len(clip), cut["at"], cut["ride"])[:, None]
         at = int(round(cut["at"] * SR))
         n = min(len(clip), total - at)
         mix[at:at + n] += clip[:n]
@@ -194,6 +246,13 @@ def main():
     if getattr(edit, "DRUMS", None):
         drums = drum_loop(edit.DRUMS["start"], edit.DRUMS["end"]) * db(edit.DRUMS["gain"])
         mix += drums[:, None]
+
+    if getattr(edit, "DRUM_EVENTS", None):
+        bed = drum_events(edit.DRUM_EVENTS) * db(getattr(edit, "DRUM_EVENTS_GAIN", 0.0))
+        plugin_lufs, _ = loudness(mix)
+        bed_lufs, _ = loudness(np.repeat(bed[:, None], 2, axis=1))
+        print(f"plug-in alone {plugin_lufs:.1f} LUFS, drums alone {bed_lufs:.1f} LUFS")
+        mix += bed[:, None]
 
     # Level to the target, then catch the peaks; twice, as limiting lowers the loudness a little.
     for _ in range(3):

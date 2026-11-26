@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <title>ArtFreq ad, hook D: Resolve (Reels / TikTok, 9:16, 16 s)</title>
+    <link rel="icon" href="data:," />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Inter";
+        font-style: normal;
+        font-weight: 100 900;
+        font-display: block;
+        src: url("assets/fonts/inter-latin.woff2") format("woff2");
+      }
+      @font-face {
+        font-family: "DM Mono";
+        font-style: normal;
+        font-weight: 500;
+        font-display: block;
+        src: url("assets/fonts/dm-mono-500.woff2") format("woff2");
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #07080c;
+        -webkit-font-smoothing: antialiased;
+      }
+      #root {
+        position: relative;
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #07080c; /* the live view's own background */
+        color: #f4f5f8;
+        font-family: "Inter", sans-serif;
+      }
+
+      /* The shots: ArtFreq's live view (take d-orbit, tools/cut_hookD.py), 140 Hz - 12 kHz, the
+         newest 2.19 s, full frame; two close-ups; the Density knob; a part of the window; and,
+         under the end card, the live view from 459 Hz to 6.9 kHz. */
+      .full {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 1080px;
+        height: 1920px;
+        display: block;
+      }
+      #s6 {
+        position: absolute;
+        left: 0;
+        top: 40px;
+        width: 1080px;
+        height: 1080px;
+        display: block;
+      }
+      #s10 {
+        position: absolute;
+        left: 0;
+        top: 190px;
+        width: 1080px;
+        height: 860px;
+        display: block;
+      }
+      #s12 {
+        position: absolute;
+        left: 0;
+        top: 750px;
+        width: 1080px;
+        height: 1170px;
+        display: block;
+        -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 140px);
+        mask-image: linear-gradient(to bottom, transparent 0, #000 140px);
+      }
+
+      #plate {
+        position: absolute;
+        inset: 0;
+        background: #10141a; /* the footer's colour, as the knob shot shows it */
+      }
+      .scene {
+        z-index: 20;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="16" data-width="1080" data-height="1920" data-fps="30">
+      <video id="s1" class="clip full" src="assets/video/s1-hook.mp4" data-start="0" data-duration="1" data-track-index="0" muted playsinline></video>
+      <video id="s2" class="clip full" src="assets/video/s2-moon.mp4" data-start="1" data-duration="1" data-track-index="0" muted playsinline></video>
+      <video id="s3" class="clip full" src="assets/video/s3-macro.mp4" data-start="2" data-duration="1" data-track-index="0" muted playsinline></video>
+      <video id="s4" class="clip full" src="assets/video/s4-galaxy.mp4" data-start="3" data-duration="2" data-track-index="0" muted playsinline></video>
+      <video id="s5" class="clip full" src="assets/video/s5-comet.mp4" data-start="5" data-duration="1.5" data-track-index="0" muted playsinline></video>
+      <div id="plate" class="clip" data-start="6.5" data-duration="0.5" data-track-index="1"></div>
+      <video id="s6" class="clip" src="assets/video/s6-knob.mp4" data-start="6.5" data-duration="0.5" data-track-index="0" muted playsinline></video>
+      <video id="s7" class="clip full" src="assets/video/s7-drop.mp4" data-start="7" data-duration="2" data-track-index="0" muted playsinline></video>
+      <video id="s8" class="clip full" src="assets/video/s8-moon.mp4" data-start="9" data-duration="1.5" data-track-index="0" muted playsinline></video>
+      <video id="s9" class="clip full" src="assets/video/s9-macro.mp4" data-start="10.5" data-duration="0.5" data-track-index="0" muted playsinline></video>
+      <video id="s10" class="clip" src="assets/video/s10-ui.mp4" data-start="11" data-duration="1" data-track-index="0" muted playsinline></video>
+      <video id="s11" class="clip full" src="assets/video/s11-galaxy.mp4" data-start="12" data-duration="1" data-track-index="0" muted playsinline></video>
+      <video id="s12" class="clip" src="assets/video/s12-end.mp4" data-start="13" data-duration="3" data-track-index="0" muted playsinline></video>
+
+      <div id="readout-a" class="scene" data-composition-id="readout-a" data-composition-src="compositions/readout-a.html" data-start="0" data-duration="6.5" data-track-index="2" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="readout-b" class="scene" data-composition-id="readout-b" data-composition-src="compositions/readout-b.html" data-start="0" data-duration="13" data-track-index="5" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="copy-a" class="scene" data-composition-id="copy-a" data-composition-src="compositions/copy-a.html" data-start="0" data-duration="6.5" data-track-index="6" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="copy-b" class="scene" data-composition-id="copy-b" data-composition-src="compositions/copy-b.html" data-start="0" data-duration="13" data-track-index="7" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+      <div id="close" class="scene" data-composition-id="close" data-composition-src="compositions/close.html" data-start="13" data-duration="3" data-track-index="3" data-track-kind="graphics" data-width="1080" data-height="1920"></div>
+
+      <!-- The sound: ArtFreq's output in the take, uncut, and the drums (tools/mix_audio.py) -->
+      <audio id="mix" src="assets/audio/ad-mix.wav" data-start="0" data-duration="16" data-volume="1" data-track-index="4"></audio>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      // The shots' moves are in the shots (tools/cut_hookD.py); the words are in compositions/.
+      window.__timelines["main"] = gsap.timeline({ paused: true });
+    </script>
+  </body>
+</html>

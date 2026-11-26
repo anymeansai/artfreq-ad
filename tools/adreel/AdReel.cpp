@@ -50,6 +50,7 @@ namespace
 {
 
 float shotScale = 4.0f;   // pixels of the picture per point of the window
+float hookDCeiling = -30.0f; // ad D: the Levels ceiling (dBFS) of the analyser view
 
 //==============================================================================
 /** The DAW's transport, as a take sets it for each block. */
@@ -151,19 +152,17 @@ struct Take
         width = juce::roundToInt (static_cast<float> (editor->getWidth()) * shotScale);
         height = juce::roundToInt (static_cast<float> (editor->getHeight()) * shotScale);
 
-        const auto video = outputDir.getChildFile (name + ".mkv");
-        video.deleteFile();
-        const auto command = "ffmpeg -hide_banner -loglevel error -y -f rawvideo -pix_fmt bgr0 -s "
-                           + juce::String (width) + "x" + juce::String (height) + " -framerate " + juce::String (framesPerSecond)
-                           + " -i - -c:v libx264rgb -qp 0 -preset ultrafast " + video.getFullPathName().quoted();
-        pipe = popen (command.toRawUTF8(), "w");
-        check (pipe != nullptr, name + ": start ffmpeg");
+        pipe = openVideo (name, width, height);
     }
 
     ~Take()
     {
         if (pipe != nullptr)
             check (pclose (pipe) == 0, name + ": ffmpeg wrote the pictures");
+
+        for (auto& camera : cameras)
+            if (camera.pipe != nullptr)
+                check (pclose (camera.pipe) == 0, camera.name + ": ffmpeg wrote the pictures");
 
         check (output[0].size() == static_cast<size_t> (frames) * samplesPerFrame, name + ": a picture's sound for every picture");
         const auto peak = peakOf (output);
@@ -336,32 +335,106 @@ struct Take
         if (live)
             liveView->resized();   // its picture redrawn from the columns at the snapshot's scale
 
-        const auto image = editor->createComponentSnapshot (editor->getLocalBounds(), true, shotScale);
-        check (image.getWidth() == width && image.getHeight() == height, name + ": picture size");
-        const juce::Image::BitmapData data (image, juce::Image::BitmapData::readOnly);
-        std::vector<uint8_t> row (static_cast<size_t> (width) * 4);
-
-        for (int y = 0; y < height && pipe != nullptr; ++y)
+        if (writeMain)
         {
-            for (int x = 0; x < width; ++x)
+            if (mainFirst < 0)
+                mainFirst = frames;
+
+            const auto image = editor->createComponentSnapshot (editor->getLocalBounds(), true, shotScale);
+            check (image.getWidth() == width && image.getHeight() == height, name + ": picture size");
+            writePicture (image, pipe, width, height);
+        }
+
+        // Further cameras: a part of the window at a scale of its own, over a range of pictures.
+        for (auto& camera : cameras)
+        {
+            if (frames < camera.first || frames > camera.last)
+                continue;
+
+            if (camera.pipe == nullptr)
+                camera.pipe = openVideo (camera.name, camera.width, camera.height);
+
+            const auto image = editor->createComponentSnapshot (camera.area, true, camera.scale);
+            check (image.getWidth() == camera.width && image.getHeight() == camera.height, camera.name + ": picture size");
+            writePicture (image, camera.pipe, camera.width, camera.height);
+            ++camera.written;
+        }
+
+        ++frames;
+    }
+
+    /** One picture's sound and the live view's columns, with no picture taken (a stretch the
+        edit does not use, played so that the clock and the live view's history are whole). */
+    void advance (int numFrames)
+    {
+        for (int i = 0; i < numFrames && editor != nullptr; ++i)
+        {
+            play();
+
+            if (liveView->isVisible())
             {
-                // Opaque (the window covers itself), so premultiplied is the colour itself.
-                const auto pixel = data.getPixelColour (x, y);
-                auto* out = row.data() + static_cast<size_t> (x) * 4;
-                out[0] = pixel.getBlue();
-                out[1] = pixel.getGreen();
-                out[2] = pixel.getRed();
-                out[3] = 255;
+                ((juce::Timer*) liveView)->timerCallback();
+                check (processor->getAnalyzer().process ({}) == 0, name + ": picture " + juce::String (frames) + " left analysis behind");
             }
 
-            if (std::fwrite (row.data(), 1, row.size(), pipe) != row.size())
+            processor->rebuildPlanIfNeeded();
+            ++frames;
+        }
+    }
+
+    /** The pixels of a snapshot, row by row (opaque: the window covers itself, so the
+        premultiplied colour is the colour; JUCE keeps them as B, G, R (, A) in memory). */
+    void writePicture (const juce::Image& image, FILE* to, int w, int h)
+    {
+        const juce::Image::BitmapData data (image, juce::Image::BitmapData::readOnly);
+        check (data.pixelStride == 3 || data.pixelStride == 4, name + ": 24- or 32-bit pictures");
+        std::vector<uint8_t> row (static_cast<size_t> (w) * 4, 255);
+
+        for (int y = 0; y < h && to != nullptr; ++y)
+        {
+            const auto* in = data.getLinePointer (y);
+
+            for (int x = 0; x < w; ++x, in += data.pixelStride)
+            {
+                auto* out = row.data() + static_cast<size_t> (x) * 4;
+                out[0] = in[0];
+                out[1] = in[1];
+                out[2] = in[2];
+            }
+
+            if (std::fwrite (row.data(), 1, row.size(), to) != row.size())
             {
                 check (false, name + ": ffmpeg took the pictures");
                 break;
             }
         }
+    }
 
-        ++frames;
+    FILE* openVideo (const juce::String& videoName, int w, int h)
+    {
+        const auto video = outputDir.getChildFile (videoName + ".mkv");
+        video.deleteFile();
+        const auto command = "ffmpeg -hide_banner -loglevel error -y -f rawvideo -pix_fmt bgr0 -s "
+                           + juce::String (w) + "x" + juce::String (h) + " -framerate " + juce::String (framesPerSecond)
+                           + " -i - -c:v libx264rgb -qp 0 -preset ultrafast " + video.getFullPathName().quoted();
+        auto* opened = popen (command.toRawUTF8(), "w");
+        check (opened != nullptr, videoName + ": start ffmpeg");
+        return opened;
+    }
+
+    /** A camera on `area` (points of the window) at `scale` pixels a point, filming pictures
+        `first` to `last` of the take into <take>-<cameraName>.mkv. */
+    void addCamera (const juce::String& cameraName, juce::Rectangle<int> area, float scale, int first, int last)
+    {
+        Camera camera;
+        camera.name = name + "-" + cameraName;
+        camera.area = area;
+        camera.scale = scale;
+        camera.first = first;
+        camera.last = last;
+        camera.width = juce::roundToInt (static_cast<float> (area.getWidth()) * scale);
+        camera.height = juce::roundToInt (static_cast<float> (area.getHeight()) * scale);
+        cameras.push_back (camera);
     }
 
     void film (int numFrames)
@@ -405,6 +478,23 @@ struct Take
             rectObject->setProperty (r.first, juce::Array<juce::var> { r.second.getX(), r.second.getY(), r.second.getWidth(), r.second.getHeight() });
 
         root->setProperty ("rects", rectObject.get());
+        root->setProperty ("mainFirst", mainFirst);
+
+        juce::DynamicObject::Ptr cameraObject (new juce::DynamicObject());
+
+        for (const auto& c : cameras)
+        {
+            juce::DynamicObject::Ptr one (new juce::DynamicObject());
+            one->setProperty ("area", juce::Array<juce::var> { c.area.getX(), c.area.getY(), c.area.getWidth(), c.area.getHeight() });
+            one->setProperty ("scale", c.scale);
+            one->setProperty ("first", c.first);
+            one->setProperty ("written", c.written);
+            one->setProperty ("width", c.width);
+            one->setProperty ("height", c.height);
+            cameraObject->setProperty (c.name, one.get());
+        }
+
+        root->setProperty ("cameras", cameraObject.get());
         outputDir.getChildFile (name + ".json").replaceWithText (juce::JSON::toString (juce::var (root.get())));
     }
 
@@ -426,6 +516,19 @@ struct Take
     std::map<juce::String, juce::Rectangle<int>> rects;
     int width = 0, height = 0, frames = 0;
     FILE* pipe = nullptr;
+
+    struct Camera
+    {
+        juce::String name;
+        juce::Rectangle<int> area;
+        float scale = 1.0f;
+        int first = 0, last = 0, written = 0, width = 0, height = 0;
+        FILE* pipe = nullptr;
+    };
+
+    std::vector<Camera> cameras;
+    bool writeMain = true;    // the whole window at shotScale, every filmed picture
+    int mainFirst = -1;       // the take picture the main video starts with
 };
 
 //==============================================================================
@@ -1038,6 +1141,120 @@ void filmHookC (const juce::File& outputDir)
         take.film();
 }
 
+
+//==============================================================================
+// Ad D, "Resolve" (hookD/). The ArtFreq instrument, one take: a drawing of a night sky (code-made
+// pictures, tools/make_pictures_hookD.py) over 4 bars, Repeat on, in the live view. Density is
+// turned up on the footer's own knob between the pictures: 64 lines, then 128, 256, 512 and, in
+// the silent last beat of the pass, 1024 for the next pass. Filmed by three cameras at once: the
+// live view's plot (100 Hz - 20 kHz) at `plotScale`, a part of the window with the layer list at
+// `uiScale`, and the Density knob at `knobScale` (and the whole window at --scale, for checking).
+// Mark "ad0" is the ad's first picture: 1 s into the second pass.
+
+struct HookDPicture { const char* name; float start, end, lowHz, highHz; ImageMode mode; };
+
+const HookDPicture hookDPictures[] = {
+    { "planet", 0.000f, 0.190f, 1100.0f, 6300.0f,  ImageMode::original },
+    { "moon",   0.250f, 0.406f, 2000.0f, 6300.0f,  ImageMode::original },
+    { "waves",  0.250f, 0.406f, 1100.0f, 1800.0f,  ImageMode::original },
+    { "galaxy", 0.500f, 0.656f, 1200.0f, 6300.0f,  ImageMode::outline },
+    { "comet",  0.750f, 0.940f, 1100.0f, 6300.0f,  ImageMode::original },
+    { "stars",  0.000f, 0.940f, 7500.0f, 11500.0f, ImageMode::original },
+};
+
+void filmHookD (const juce::File& outputDir, const juce::String& takeName, float plotScale, float uiScale, float knobScale,
+                float ceilingDb, juce::Rectangle<int> uiArea)
+{
+    constexpr int passFrames = 8 * framesPerSecond;                // 4 bars at 120 BPM
+    constexpr int adFrames = 16 * framesPerSecond;
+
+    ArtDocument drawing;
+
+    for (const auto& picture : hookDPictures)
+    {
+        const auto file = outputDir.getChildFile ("d-" + juce::String (picture.name) + ".png");
+        const auto image = juce::ImageFileFormat::loadFrom (file);
+        check (image.isValid(), takeName + ": " + file.getFileName());
+        auto o = ArtDocument::makeImageObject (prepareImportedImage (image), picture.lowHz, picture.highHz);
+        o.fileName = file.getFileName().fromFirstOccurrenceOf ("d-", false, false);
+        o.startTime = picture.start;
+        o.endTime = picture.end;
+        o.imageMode = picture.mode;
+        drawing.objects.push_back (o);
+    }
+
+    Take take (takeName, false, [ceilingDb] (ArtFreqProcessor& p)
+    {
+        setParameter (p, params::id::length, 4.0f);     // 4 bars: 8 s at 120 BPM (the live view shows 10 s)
+        setParameter (p, params::id::repeat, 1.0f);
+        setParameter (p, params::id::density, 64.0f);
+        setView (p, ceilingDb);
+    }, outputDir, drawing);
+
+    take.editor->selectObject (juce::Uuid::null());
+    take.showLive();
+    take.noteRects ("live/");
+    take.advance (2);
+    take.pressPlay();
+    const auto play = take.marks["play"];
+    const auto ad0 = play + passFrames + framesPerSecond;
+    take.marks["ad0"] = ad0;
+
+    // The cameras. The plot: the newest 3.3 s of the live view's plot, from 12.4 kHz (under its
+    // LIVE badge) down to 140 Hz.
+    const auto plot = take.editor->getLocalArea (take.liveView, ui::axes::plotArea (take.liveView->getLocalBounds(),
+                                                                                    ui::CanvasView::axisWidth, ui::CanvasView::axisHeight));
+    const auto yOf = [&plot] (double hz) { return plot.getY() + juce::roundToInt (plot.getHeight() * std::log10 (20000.0 / hz) / 3.0); };
+    const auto plotWidth = juce::roundToInt (plot.getWidth() * 3.3 / take.liveView->getVisibleSeconds());
+    const juce::Rectangle<int> plotArea (plot.getRight() - plotWidth, yOf (12400.0), plotWidth, yOf (140.0) - yOf (12400.0));
+    take.addCamera ("plot", plotArea, plotScale, ad0 - 6, ad0 + adFrames + 6);
+    take.addCamera ("ui", uiArea, uiScale, ad0 + 300, ad0 + 400);
+
+    auto* knob = findPart<juce::Slider> (*take.editor, "density");
+    const auto knobArea = take.editor->getLocalArea (knob, knob->getLocalBounds()).expanded (14, 12);
+    take.addCamera ("knob", knobArea, knobScale, ad0 + 180, ad0 + 225);
+    take.rects["plot-pt"] = plot;
+    take.rects["knob-pt"] = knobArea;
+
+    // Density through the knob, as a hand turns it: one value a picture, set before the picture
+    // (the plan follows at once, so the picture's sound already has it).
+    std::map<int, double> turns;
+    const auto ramp = [&turns, ad0] (int first, int count, double from, double to)
+    {
+        for (int i = 1; i <= count; ++i)
+            turns[ad0 + first + i - 1] = from * std::pow (to / from, i / static_cast<double> (count));
+    };
+    ramp (24, 6, 64.0, 128.0);
+    ramp (84, 6, 128.0, 256.0);
+    ramp (144, 6, 256.0, 512.0);
+    ramp (198, 13, 512.0, 1024.0);    // 1024 on the pass's first picture (the knob reads "1024 lin..." there)
+
+    juce::Array<juce::var> densities;
+    const auto end = ad0 + adFrames + 7;
+
+    while (take.frames < end && take.editor != nullptr)
+    {
+        if (const auto turn = turns.find (take.frames); turn != turns.end())
+        {
+            // No message loop here (see filmHookC): the knob's attachment sets the parameter now.
+            knob->setValue (std::round (turn->second), juce::sendNotificationSync);
+            take.processor->rebuildPlanIfNeeded();
+        }
+
+        densities.add (knob->getValue());
+
+        if (take.frames < ad0 - 6)
+            take.advance (1);
+        else
+            take.film();
+    }
+
+    juce::DynamicObject::Ptr extra (new juce::DynamicObject());
+    extra->setProperty ("firstFrame", play);
+    extra->setProperty ("density", densities);
+    outputDir.getChildFile (takeName + "-density.json").replaceWithText (juce::JSON::toString (juce::var (extra.get())));
+}
+
 } // namespace
 
 int main (int argc, char* argv[])
@@ -1070,6 +1287,8 @@ int main (int argc, char* argv[])
             wanted = juce::StringArray::fromTokens (value, ",", {});
         else if (option == "--scale")
             shotScale = value.getFloatValue();
+        else if (option == "--ceiling")
+            hookDCeiling = value.getFloatValue();
         else if (option == "--logo")
             logoFile = cwd.getChildFile (value);
         else
@@ -1103,6 +1322,11 @@ int main (int argc, char* argv[])
     if (wanted.contains ("b-drop"))   filmHookBDrop (outputDir, logoFile);
     if (wanted.contains ("b-logo"))   filmHookBLogo (outputDir);
     if (wanted.contains ("c-wf"))     filmHookC (outputDir);
+
+    // Ad D: d-test (small, to check the look) and d-orbit (the take the ad is cut from).
+    const juce::Rectangle<int> hookDUiArea { 560, 44, 560, 446 };
+    if (wanted.contains ("d-test"))   filmHookD (outputDir, "d-test", 4.0f, 2.0f, 4.0f, hookDCeiling, hookDUiArea);
+    if (wanted.contains ("d-orbit"))  filmHookD (outputDir, "d-orbit", 14.0f, 4.0f, 12.0f, hookDCeiling, hookDUiArea);
 
     pump (50);
     licensetest::removeRunnerLicensing();

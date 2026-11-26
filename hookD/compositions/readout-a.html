@@ -1,0 +1,104 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    /* The words sit under the drawing, in the band it leaves empty (about 1 kHz and below),
+       inside the apps' safe area. */
+    .hud {
+      position: absolute;
+      left: 120px;
+      top: 1074px;
+      height: 34px;
+      font-family: "DM Mono", monospace;
+      font-weight: 500;
+      font-size: 30px;
+      line-height: 34px;
+      letter-spacing: 0.06em;
+      color: #fce7a0;
+      white-space: nowrap;
+    }
+    .hud b {
+      font-weight: 500;
+      color: rgba(244, 245, 248, 0.62);
+    }
+    .hud .nums {
+      position: relative;
+      display: inline-block;
+      width: 220px;
+      height: 34px;
+      vertical-align: top;
+    }
+    .hud .n {
+      position: absolute;
+      left: 0;
+      top: 0;
+      white-space: nowrap;
+    }
+    .hud .n.later {
+      opacity: 0;
+    }
+    .hud .drop {
+      display: inline-block;
+    }
+  </style>
+  <div id="root" data-composition-id="readout-a" data-width="1080" data-height="1920">
+    <!-- The read-out: the product and the Density the knob is at, picture by picture (hud.json). -->
+    <div id="hud-a" class="clip hud" data-start="0.00000" data-duration="2.00000" data-track-index="0"><b>ARTFREQ ·</b> <span class="nums"><span id="hud-a-0" class="n">64 LINES</span><span id="hud-a-1" class="n later">72 LINES</span><span id="hud-a-2" class="n later">81 LINES</span><span id="hud-a-3" class="n later">91 LINES</span><span id="hud-a-4" class="n later">102 LINES</span><span id="hud-a-5" class="n later">114 LINES</span><span id="hud-a-6" class="n later">128 LINES</span></span></div>
+    <div id="hud-b" class="clip hud" data-start="3.00000" data-duration="3.50000" data-track-index="0"><b>ARTFREQ ·</b> <span class="nums"><span id="hud-b-0" class="n">256 LINES</span><span id="hud-b-1" class="n later">287 LINES</span><span id="hud-b-2" class="n later">323 LINES</span><span id="hud-b-3" class="n later">362 LINES</span><span id="hud-b-4" class="n later">406 LINES</span><span id="hud-b-5" class="n later">456 LINES</span><span id="hud-b-6" class="n later">512 LINES</span></span></div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    // The read-out's number follows the knob, picture by picture.
+    tl.set("#hud-a-0", { opacity: 0 }, 0.80000);
+    tl.set("#hud-a-1", { opacity: 1 }, 0.80000);
+    tl.set("#hud-a-1", { opacity: 0 }, 0.83333);
+    tl.set("#hud-a-2", { opacity: 1 }, 0.83333);
+    tl.set("#hud-a-2", { opacity: 0 }, 0.86667);
+    tl.set("#hud-a-3", { opacity: 1 }, 0.86667);
+    tl.set("#hud-a-3", { opacity: 0 }, 0.90000);
+    tl.set("#hud-a-4", { opacity: 1 }, 0.90000);
+    tl.set("#hud-a-4", { opacity: 0 }, 0.93333);
+    tl.set("#hud-a-5", { opacity: 1 }, 0.93333);
+    tl.set("#hud-a-5", { opacity: 0 }, 0.96667);
+    tl.set("#hud-a-6", { opacity: 1 }, 0.96667);
+    tl.set("#hud-b-0", { opacity: 0 }, 4.80000);
+    tl.set("#hud-b-1", { opacity: 1 }, 4.80000);
+    tl.set("#hud-b-1", { opacity: 0 }, 4.83333);
+    tl.set("#hud-b-2", { opacity: 1 }, 4.83333);
+    tl.set("#hud-b-2", { opacity: 0 }, 4.86667);
+    tl.set("#hud-b-3", { opacity: 1 }, 4.86667);
+    tl.set("#hud-b-3", { opacity: 0 }, 4.90000);
+    tl.set("#hud-b-4", { opacity: 1 }, 4.90000);
+    tl.set("#hud-b-4", { opacity: 0 }, 4.93333);
+    tl.set("#hud-b-5", { opacity: 1 }, 4.93333);
+    tl.set("#hud-b-5", { opacity: 0 }, 4.96667);
+    tl.set("#hud-b-6", { opacity: 1 }, 4.96667);
+    tl.set("#hud-a-0", { opacity: 0 }, 0.80000);
+    tl.set("#hud-a-1", { opacity: 1 }, 0.80000);
+    tl.set("#hud-a-1", { opacity: 0 }, 0.83333);
+    tl.set("#hud-a-2", { opacity: 1 }, 0.83333);
+    tl.set("#hud-a-2", { opacity: 0 }, 0.86667);
+    tl.set("#hud-a-3", { opacity: 1 }, 0.86667);
+    tl.set("#hud-a-3", { opacity: 0 }, 0.90000);
+    tl.set("#hud-a-4", { opacity: 1 }, 0.90000);
+    tl.set("#hud-a-4", { opacity: 0 }, 0.93333);
+    tl.set("#hud-a-5", { opacity: 1 }, 0.93333);
+    tl.set("#hud-a-5", { opacity: 0 }, 0.96667);
+    tl.set("#hud-a-6", { opacity: 1 }, 0.96667);
+    tl.set("#hud-b-0", { opacity: 0 }, 4.80000);
+    tl.set("#hud-b-1", { opacity: 1 }, 4.80000);
+    tl.set("#hud-b-1", { opacity: 0 }, 4.83333);
+    tl.set("#hud-b-2", { opacity: 1 }, 4.83333);
+    tl.set("#hud-b-2", { opacity: 0 }, 4.86667);
+    tl.set("#hud-b-3", { opacity: 1 }, 4.86667);
+    tl.set("#hud-b-3", { opacity: 0 }, 4.90000);
+    tl.set("#hud-b-4", { opacity: 1 }, 4.90000);
+    tl.set("#hud-b-4", { opacity: 0 }, 4.93333);
+    tl.set("#hud-b-5", { opacity: 1 }, 4.93333);
+    tl.set("#hud-b-5", { opacity: 0 }, 4.96667);
+    tl.set("#hud-b-6", { opacity: 1 }, 4.96667);
+    window.__timelines["readout-a"] = tl;
+  </script>
+</template>

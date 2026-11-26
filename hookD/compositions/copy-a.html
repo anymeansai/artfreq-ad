@@ -1,0 +1,55 @@
+<template>
+  <style>
+    #root {
+      position: absolute;
+      inset: 0;
+    }
+    /* The words sit under the drawing, in the band it leaves empty (about 1 kHz and below),
+       inside the apps' safe area. */
+    .copy {
+      position: absolute;
+      left: 120px;
+      top: 1116px;
+      width: 840px;
+    }
+    .copy .l {
+      display: block;
+      height: 64px;
+      overflow: hidden;
+    }
+    .copy .l span {
+      display: block;
+      font-family: "Inter", sans-serif;
+      font-weight: 700;
+      font-size: 60px;
+      line-height: 64px;
+      letter-spacing: -0.025em;
+      color: #f4f5f8;
+      white-space: nowrap;
+    }
+  </style>
+  <div id="root" data-composition-id="copy-a" data-width="1080" data-height="1920">
+    <div id="c1" class="clip copy" data-start="0" data-duration="1.97" data-track-index="1">
+      <div class="l"><span>Each glowing line</span></div>
+      <div class="l"><span>is a sine wave.</span></div>
+    </div>
+    <div id="c2" class="clip copy" data-start="3.1" data-duration="1.8" data-track-index="1">
+      <div class="l"><span>Add more lines.</span></div>
+    </div>
+    <div id="c3" class="clip copy" data-start="5.1" data-duration="1.33" data-track-index="1">
+      <div class="l"><span>More.</span></div>
+    </div>
+  </div>
+  <script>
+    const tl = gsap.timeline({ paused: true });
+    const IN = { yPercent: 0, duration: 0.45, ease: "expo.out", stagger: 0.08, immediateRender: false };
+    const OUT = { yPercent: -110, duration: 0.2, ease: "power3.in", immediateRender: false };
+    // The hook's words are there from the first picture; they leave as the close-up comes.
+    tl.to("#c1 .l span", { ...OUT, stagger: 0.03 }, 1.77);
+    tl.fromTo("#c2 .l span", { yPercent: 110 }, IN, 3.1);
+    tl.to("#c2 .l span", OUT, 4.7);
+    tl.fromTo("#c3 .l span", { yPercent: 110 }, IN, 5.1);
+    tl.to("#c3 .l span", OUT, 6.23);
+    window.__timelines["copy-a"] = tl;
+  </script>
+</template>
