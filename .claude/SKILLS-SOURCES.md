@@ -15,6 +15,7 @@ and music. They are copied unchanged from the repositories below; their licences
 | `motion-art-direction` | [iart-ai/motion-design-skills](https://github.com/iart-ai/motion-design-skills) | b85e50c | MIT | tone, pacing, restraint and consistency across shots |
 | `shot-composition` | [iart-ai/motion-design-skills](https://github.com/iart-ai/motion-design-skills) | b85e50c | MIT | framing, focal point, safe areas for 9:16 |
 | `short-form-video` | [iart-ai/tiktok-video-skills](https://github.com/iart-ai/tiktok-video-skills) | 88e7152 | MIT | Reels/TikTok grammar: the first seconds, retention, the loop, 9:16 safe areas |
+| `i-have-adhd` | [ayghri/i-have-adhd](https://github.com/ayghri/i-have-adhd) | f3e783b | MIT | output style for every reply, always on (see CLAUDE.md) |
 
 ## Removed
 
